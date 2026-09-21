@@ -255,41 +255,6 @@ export const entries: Entry[] = [
           ],
         },
       },
-
-      // ── 4. AI coding agents in daily production work ──────────
-      {
-        id: 'ai-dev-workflow',
-        title: l('Production development with AI coding agents (Claude Code)', 'AI 코딩 에이전트(Claude Code)로 하는 프로덕션 개발'),
-        stack: ['Claude Code', 'Agent harness', 'Evaluation', 'TypeScript', 'Python'],
-        detail: {
-          context: [
-            l(
-              'Both projects above were built in a small team on a tight internship timeline, inside a production codebase with real customers — so the question was how to use AI coding agents to move fast without shipping things nobody understood.',
-              '위의 두 프로젝트는 소규모 팀에서 짧은 인턴 기간 안에, 실제 고객이 쓰는 프로덕션 코드베이스 위에서 진행됐습니다. 그래서 핵심은 AI 코딩 에이전트로 속도를 내되, 아무도 이해하지 못하는 코드가 배포되는 일은 막는 방법이었습니다.',
-            ),
-          ],
-          did: [
-            l(
-              'Used Claude Code as the primary development harness for production-grade work: scaffolding the Azure Functions and indexer services, writing tests first, and running the build/test loop inside the agent session with the repo’s conventions supplied as project context.',
-              'Claude Code를 프로덕션 개발의 기본 하네스로 사용했습니다. Azure Functions와 인덱서 서비스의 뼈대를 잡고, 테스트를 먼저 작성하고, 저장소 컨벤션을 프로젝트 컨텍스트로 넣은 상태에서 빌드·테스트 루프를 에이전트 세션 안에서 돌렸습니다.',
-            ),
-            l(
-              'Kept the agent’s changes reviewable: small scoped tasks, every diff read and explained before merge, and the AI code review agent above running on my own PRs as well.',
-              '에이전트가 만든 변경은 항상 리뷰 가능한 크기로 유지했습니다. 작업을 작게 나누고, 모든 diff를 직접 읽고 설명할 수 있는 상태에서만 머지했으며, 제가 만든 PR에도 위의 AI 코드 리뷰 에이전트를 그대로 적용했습니다.',
-            ),
-            l(
-              'Built a lightweight evaluation loop for the LLM features themselves: a golden set of past PRs with known review comments for the code review agent, and offline relevance checks (top-k overlap, click-through on A/B) for the recommendation service.',
-              'LLM 기능 자체를 위한 간단한 평가 루프도 만들었습니다. 코드 리뷰 에이전트에는 실제 리뷰 코멘트가 달렸던 과거 PR들로 골든 셋을 구성했고, 추천 서비스는 top-k 겹침과 A/B 클릭률로 오프라인·온라인 검증을 했습니다.',
-            ),
-          ],
-          result: [
-            l(
-              'Shipped two production LLM systems in a 3-month internship — agents with tool calling, a retrieval and embedding pipeline, prompt and context engineering, and evaluation — with an AI-assisted workflow the team kept using afterward.',
-              '3개월 인턴 기간에 두 개의 LLM 시스템을 프로덕션에 배포했습니다. 도구 호출 에이전트, 검색·임베딩 파이프라인, 프롬프트·컨텍스트 엔지니어링, 평가까지 포함해서요. 그리고 이 AI 기반 개발 워크플로우는 제가 떠난 뒤에도 팀에서 계속 사용하고 있습니다.',
-            ),
-          ],
-        },
-      },
     ],
   },
 
@@ -326,12 +291,12 @@ export const entries: Entry[] = [
     accentSoft: '#e0f2fe',
     tags: [
       l('Full-stack (TypeScript/React + Spring)', '풀스택 (TypeScript/React + Spring)'),
-      l('Kubernetes · Helm · Restricted Env', 'Kubernetes · Helm · 제한 환경'),
+      l('Kubernetes Operations', 'Kubernetes 운영'),
       l('10M+ Users in Production', '1,000만+ 사용자 프로덕션'),
     ],
     summary: l(
-      'Full-stack engineer on OK Cashbag — a mobile web app serving 10M+ users in Korea — shipping TypeScript/React and Spring features quickly, and operating the reward services on a restricted private Kubernetes cluster with Helm so a faulty instance is isolated and restarted automatically.',
-      '한국 1,000만+ 사용자의 OK캐쉬백 모바일 웹을 담당한 풀스택 엔지니어입니다. TypeScript/React와 Spring으로 기능을 빠르게 만들어 배포했고, 제한된 프라이빗 Kubernetes 클러스터에서 Helm으로 리워드 서비스를 운영해 장애 인스턴스가 자동으로 격리·재시작되도록 만들었습니다.',
+      'Full-stack engineer on OK Cashbag — a mobile web app serving 10M+ users in Korea — shipping TypeScript/React and Spring features quickly, and hardening the ad-reward service on Kubernetes so a faulty instance is isolated and restarted automatically.',
+      '한국 1,000만+ 사용자의 OK캐쉬백 모바일 웹을 담당한 풀스택 엔지니어입니다. TypeScript/React와 Spring으로 기능을 빠르게 만들어 배포했고, 광고 리워드 서비스를 Kubernetes에서 운영해 장애 인스턴스가 자동으로 격리·재시작되도록 만들었습니다.',
     ),
     stories: [
       // ── ★ Kubernetes: reward service resilience ──────────────
@@ -439,45 +404,6 @@ export const entries: Entry[] = [
             l(
               'Shipped features to millions of users reliably and became the go-to engineer for the reward flow, from frontend to database.',
               '수백만 사용자에게 기능을 안정적으로 배포했고, 프론트엔드부터 DB까지 리워드 흐름 전반을 가장 잘 아는 엔지니어로 자리 잡았습니다.',
-            ),
-          ],
-        },
-      },
-
-      // ── Kubernetes / Helm in a restricted private cluster ────
-      {
-        id: 'k8s-ops',
-        title: l('Helm-based deployments in a restricted private Kubernetes cluster', '제한된 프라이빗 Kubernetes 클러스터에서의 Helm 기반 배포'),
-        stack: ['Kubernetes', 'Helm', 'Terraform', 'Docker', 'Private registry'],
-        detail: {
-          context: [
-            l(
-              'The service ran on a private Kubernetes cluster inside SK Planet’s network: pods had no outbound internet, images had to come from an internal registry, and every external endpoint (ad vendors, payment) went through allow-listed egress.',
-              '서비스는 SK플래닛 내부망의 프라이빗 Kubernetes 클러스터에서 돌아갔습니다. Pod는 외부 인터넷에 나갈 수 없고, 이미지는 내부 레지스트리에서만 받아야 했으며, 광고사·결제 같은 외부 연동은 모두 허용 목록에 등록된 경로로만 나갔습니다.',
-            ),
-            l(
-              'Deployments were a mix of hand-edited YAML per environment, which is how the reward-service incident above happened in the first place.',
-              '배포는 환경마다 손으로 고친 YAML이 섞여 있는 상태였고, 위의 리워드 서비스 장애도 결국 그 때문에 생긴 일이었습니다.',
-            ),
-          ],
-          did: [
-            l(
-              'Packaged the reward services as Helm charts with per-environment values files (dev / staging / prod) so probes, resource limits, and replica counts were declared once and reviewed in PRs instead of edited on the cluster.',
-              '리워드 서비스들을 Helm 차트로 패키징하고 환경별 values 파일(dev / staging / prod)을 분리해서, 프로브·리소스 제한·레플리카 수를 한 번 선언하고 PR로 리뷰하도록 바꿨습니다. 클러스터에서 직접 고치는 일이 없어졌습니다.',
-            ),
-            l(
-              'Handled the restricted-environment details: mirroring base images and dependencies into the internal registry, pinning image digests, and mounting vendor certificates so pods could reach the allow-listed external endpoints.',
-              '제한된 환경에서 필요한 세부 작업도 직접 처리했습니다. 베이스 이미지와 의존성을 내부 레지스트리에 미러링하고, 이미지 다이제스트를 고정하고, 허용된 외부 엔드포인트에 연결할 수 있도록 인증서를 마운트했습니다.',
-            ),
-            l(
-              'Worked with the platform team’s Terraform modules for the cluster-level pieces — namespaces, ingress, and node pool sizing — contributing changes through their review process rather than clicking through consoles.',
-              '네임스페이스, 인그레스, 노드 풀 크기 같은 클러스터 수준의 설정은 플랫폼 팀의 Terraform 모듈을 통해 다뤘고, 콘솔에서 직접 바꾸는 대신 그들의 리뷰 프로세스로 변경을 제출했습니다.',
-            ),
-          ],
-          result: [
-            l(
-              'Deploys became repeatable across environments, configuration drift disappeared as a class of incident, and the team could stand up a new environment for a partner test in hours rather than days.',
-              '배포가 환경 간에 동일하게 반복 가능해졌고, 설정이 어긋나서 생기는 장애 유형 자체가 사라졌습니다. 파트너 테스트용 환경도 며칠이 아니라 몇 시간 안에 새로 띄울 수 있게 되었습니다.',
             ),
           ],
         },
