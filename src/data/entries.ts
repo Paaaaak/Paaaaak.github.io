@@ -65,7 +65,7 @@ export const entries: Entry[] = [
       l('AI Coding Agents in Production', '프로덕션 AI 코딩 에이전트'),
     ],
     summary: l(
-      'Built production LLM applications for an e-commerce engineering org — a tool-calling code review agent in Azure DevOps CI/CD, a retrieval and embedding pipeline for recommendations, automated model retraining — using AI coding agents (Claude Code) as the daily development harness.',
+      'Built production LLM applications for an e-commerce engineering org: a tool-calling code review agent in Azure DevOps CI/CD, a retrieval and embedding pipeline for recommendations, and automated model retraining, using AI coding agents (Claude Code) as the daily development harness.',
       '이커머스 엔지니어링 조직에서 프로덕션 LLM 애플리케이션을 만들었습니다. Azure DevOps CI/CD에 붙인 tool-calling 코드 리뷰 에이전트, 추천을 위한 검색·임베딩 파이프라인, 모델 재학습 자동화까지. 개발은 AI 코딩 에이전트(Claude Code)를 기본 하네스로 삼아 진행했습니다.',
     ),
     stories: [
@@ -97,7 +97,7 @@ export const entries: Entry[] = [
           ),
           problem: [
             l(
-              'Every PR went through the same repetitive first pass — style, obvious bugs, missing tests — before reviewers could get to the substance.',
+              'Every PR went through the same repetitive first pass (style, obvious bugs, missing tests) before reviewers could get to the substance.',
               '모든 PR에서 코드 스타일, 명백한 버그, 테스트 누락 같은 반복적인 1차 점검을 끝낸 뒤에야 리뷰어가 본질적인 리뷰를 시작할 수 있었습니다.',
             ),
             l(
@@ -105,7 +105,7 @@ export const entries: Entry[] = [
               '린터나 정적 분석 같은 규칙 기반 도구는 코드의 의도, 네이밍, 주변 코드와의 일관성처럼 맥락이 필요한 판단을 하지 못했습니다.',
             ),
             l(
-              'For the result to change behavior it had to land inside the PR — as inline comments reviewers already read — not in a separate tool.',
+              'For the result to change behavior it had to land inside the PR, as inline comments reviewers already read, not in a separate tool.',
               '리뷰 방식이 실제로 바뀌려면, 결과가 별도의 도구가 아니라 리뷰어가 이미 보고 있는 PR 안에 인라인 코멘트로 남아야 했습니다.',
             ),
           ],
@@ -115,15 +115,15 @@ export const entries: Entry[] = [
               'PR이 생성되거나 업데이트될 때 실행되는 단계로 에이전트를 Azure DevOps 파이프라인에 추가해, 리뷰가 원래 이루어지는 곳에서 바로 동작하게 했습니다.',
             ),
             l(
-              'Assembled the prompt from the PR diff plus repo-specific context — conventions, touched modules, PR metadata — and chunked large diffs so cross-file references survive.',
+              'Assembled the prompt from the PR diff plus repo-specific context (conventions, touched modules, PR metadata), and chunked large diffs so cross-file references survive.',
               'PR diff에 저장소 컨벤션, 변경된 모듈, PR 메타데이터 같은 컨텍스트를 함께 담아 프롬프트를 구성했고, 큰 diff는 파일 간 참조가 끊어지지 않도록 나누어 처리했습니다.',
             ),
             l(
-              'Asked Claude for structured findings — file, line, severity, concrete suggestion — so the output can be processed programmatically.',
+              'Asked Claude for structured findings (file, line, severity, concrete suggestion) so the output can be processed programmatically.',
               'Claude가 파일, 라인, 심각도, 구체적인 수정 제안을 포함한 구조화된 형식으로 응답하도록 요청해, 결과를 코드로 바로 처리할 수 있게 했습니다.',
             ),
             l(
-              'Gave the agent write-back tools through tool/function calling — post an inline comment on an exact changed line, post a PR-level summary — backed by the Azure DevOps REST API, so the model decides where a finding belongs and the harness executes it.',
+              'Gave the agent two write-back tools through tool/function calling, "post an inline comment on a changed line" and "post a PR-level summary", both backed by the Azure DevOps REST API. The model decides where a finding belongs and the harness executes it.',
               '에이전트에 tool/function calling으로 write-back 도구를 붙였습니다. "특정 변경 라인에 인라인 코멘트 달기", "PR 전체 요약 남기기" 두 가지 도구가 Azure DevOps REST API 위에서 동작하며, 어디에 어떤 지적을 남길지는 모델이 정하고 실행은 하네스가 합니다.',
             ),
             l(
@@ -149,7 +149,7 @@ export const entries: Entry[] = [
               '출력 형식을 엄격한 JSON으로 고정하고 게시 전에 검증합니다. 형식이 깨지면 잘못된 코멘트를 남기는 대신 제한된 횟수만큼 다시 시도합니다.',
             ),
             l(
-              'Explicit negative constraints — what the linter already covers, generated files — to keep the agent out of noise.',
+              'Explicit negative constraints (what the linter already covers, generated files) to keep the agent out of noise.',
               '린터가 이미 잡아내는 항목이나 자동 생성 파일처럼 지적하지 말아야 할 것을 명시적으로 제외해 불필요한 코멘트를 막았습니다.',
             ),
           ],
@@ -159,7 +159,7 @@ export const entries: Entry[] = [
               '반복적인 1차 리뷰가 모든 PR에서 자동으로 이루어지고, 리뷰어는 중요한 라인에 이미 코멘트가 달린 상태에서 리뷰를 시작합니다.',
             ),
             l(
-              'The pattern — pipeline hook → context assembly → structured LLM output → write-back — is reusable for other automations on the same platform.',
+              'The pattern (pipeline hook → context assembly → structured LLM output → write-back) is reusable for other automations on the same platform.',
               '파이프라인 훅 → 컨텍스트 구성 → 구조화된 LLM 출력 → write-back으로 이어지는 패턴은 같은 플랫폼의 다른 자동화에도 그대로 재사용할 수 있습니다.',
             ),
           ],
@@ -174,7 +174,7 @@ export const entries: Entry[] = [
         detail: {
           context: [
             l(
-              'Recommendations were driven entirely by the legacy SAR model, which only knows co-purchase patterns. Merchandising asked whether we could also recommend by product attributes — scent family, notes, brand, concentration, price band — so someone viewing a woody oud fragrance would see similar scents, not just what other shoppers happened to buy alongside it.',
+              'Recommendations were driven entirely by the legacy SAR model, which only knows co-purchase patterns. Merchandising asked whether we could also recommend by product attributes such as scent family, notes, brand, concentration and price band, so someone viewing a woody oud fragrance would see similar scents, not just what other shoppers happened to buy alongside it.',
               '기존 추천은 레거시 SAR 모델 하나로 돌아갔고, 이 모델은 "함께 구매된 상품" 패턴만 알고 있었습니다. 머천다이징 팀에서 향 계열, 노트, 브랜드, 농도, 가격대 같은 상품 속성 기준으로도 추천할 수 없겠냐는 제안이 들어왔습니다. 우디 계열 오드 향수를 보고 있는 고객에게 단순히 같이 팔린 상품이 아니라 비슷한 향을 보여주자는 것이었습니다.',
             ),
             l(
@@ -225,7 +225,7 @@ export const entries: Entry[] = [
               '레거시 SAR(Smart Adaptive Recommendations) 모델은 사람이 직접 재학습시키고 있었습니다. 엔지니어가 최근 주문 데이터를 뽑아 노트북에서 학습 스크립트를 돌리고 결과를 업로드하는 방식이었죠. 실제로는 몇 주에 한 번 정도 이루어져서, 신상품은 추천에 뜨지 않고 시즌 변화도 늦게 반영됐습니다.',
             ),
             l(
-              'It was also fragile — tied to one person’s machine, with no record of which data window a given model had been trained on.',
+              'It was also fragile: tied to one person’s machine, with no record of which data window a given model had been trained on.',
               '한 사람의 장비에 묶여 있어 취약했고, 특정 모델이 어느 기간의 데이터로 학습됐는지 기록도 남지 않았습니다.',
             ),
           ],
@@ -235,7 +235,7 @@ export const entries: Entry[] = [
               '재학습을 매주 실행되는 타이머 트리거 Azure Function으로 다시 만들었습니다. 트랜잭션 DB에서 최근 N개월의 주문과 상품 조회 데이터를 가져와 사용자–상품 상호작용 행렬을 만들고, 기존 수동 실행과 같은 하이퍼파라미터로 SAR(시간 감쇠가 적용된 아이템 간 동시 발생 모델)을 학습합니다.',
             ),
             l(
-              'Each run writes the item-similarity table and a versioned model artifact to Blob Storage under a dated path, then validates it — row counts, coverage of active SKUs, and top-k overlap with the previous model — before moving a "current" pointer that the recommendation API reads.',
+              'Each run writes the item-similarity table and a versioned model artifact to Blob Storage under a dated path, then validates it (row counts, coverage of active SKUs, and top-k overlap with the previous model) before moving a "current" pointer that the recommendation API reads.',
               '실행마다 아이템 유사도 테이블과 버전이 붙은 모델 파일을 날짜별 경로로 Blob Storage에 저장하고, 검증을 거칩니다. 행 개수, 판매 중인 SKU 커버리지, 이전 모델과의 top-k 겹침 정도를 확인한 뒤에야 추천 API가 읽는 "current" 포인터를 새 모델로 옮깁니다.',
             ),
             l(
@@ -249,7 +249,7 @@ export const entries: Entry[] = [
               '재학습이 "몇 주에 한 번, 사람이 직접"에서 "매주, 자동"으로 바뀌었고, 신상품도 출시 후 일주일 안에 추천에 반영됩니다.',
             ),
             l(
-              'Every model is reproducible — data window and parameters are logged — and rollback is a single pointer change.',
+              'Every model is reproducible, since the data window and parameters are logged, and rollback is a single pointer change.',
               '모든 모델의 학습 기간과 파라미터가 기록되어 재현이 가능하고, 문제가 생기면 포인터 하나만 되돌리면 됩니다.',
             ),
           ],
@@ -295,7 +295,7 @@ export const entries: Entry[] = [
       l('10M+ Users in Production', '1,000만+ 사용자 프로덕션'),
     ],
     summary: l(
-      'Full-stack engineer on OK Cashbag — a mobile web app serving 10M+ users in Korea — shipping TypeScript/React and Spring features quickly, and hardening the ad-reward service on Kubernetes so a faulty instance is isolated and restarted automatically.',
+      'Full-stack engineer on OK Cashbag, a mobile web app serving 10M+ users in Korea: shipped TypeScript/React and Spring features quickly and hardened the ad-reward service on Kubernetes so a faulty instance is isolated and restarted automatically.',
       '한국 1,000만+ 사용자의 OK캐쉬백 모바일 웹을 담당한 풀스택 엔지니어입니다. TypeScript/React와 Spring으로 기능을 빠르게 만들어 배포했고, 광고 리워드 서비스를 Kubernetes에서 운영해 장애 인스턴스가 자동으로 격리·재시작되도록 만들었습니다.',
     ),
     stories: [
@@ -363,7 +363,7 @@ export const entries: Entry[] = [
               '특정 Reward 인스턴스에 장애가 나도 문제 Pod가 자동으로 트래픽에서 격리·재시작되어, 하나의 애플리케이션 장애가 전체 리워드 처리 장애로 확대되는 것을 줄였습니다.',
             ),
             l(
-              'Operators no longer have to find and restart the broken instance by hand — Kubernetes does it — cutting recovery time and operational load.',
+              'Operators no longer have to find and restart the broken instance by hand; Kubernetes does it, cutting recovery time and operational load.',
               '운영자가 장애 인스턴스를 확인하고 직접 재시작해야 했던 과정을 Kubernetes가 자동화해 장애 복구 시간과 운영 부담이 줄었습니다.',
             ),
           ],
@@ -373,7 +373,7 @@ export const entries: Entry[] = [
       // ── OK Cashbag ───────────────────────────────────────────
       {
         id: 'ok-cashbag',
-        title: l('OK Cashbag mobile web — full-stack features for 10M+ users', 'OK캐쉬백 모바일 웹 — 1,000만+ 사용자를 위한 풀스택 개발'),
+        title: l('Full-stack features on OK Cashbag mobile web for 10M+ users', '1,000만+ 사용자 OK캐쉬백 모바일 웹 풀스택 개발'),
         stack: ['React', 'TypeScript', 'Spring', 'Java', 'Feature flags'],
         detail: {
           context: [
@@ -382,13 +382,13 @@ export const entries: Entry[] = [
               'OK캐쉬백은 국내 최대 규모의 멤버십 서비스 중 하나입니다. 1,000만 명이 넘는 회원이 모바일 웹에서 포인트를 확인하고, 쿠폰을 쓰고, 광고·설문·앱 설치 같은 리워드 미션을 수행합니다.',
             ),
             l(
-              'I was on the team that owns the reward and missions area — every feature there touches points, which is money — so correctness and safe releases mattered as much as shipping speed.',
+              'I was on the team that owns the reward and missions area. Every feature there touches points, which is money, so correctness and safe releases mattered as much as shipping speed.',
               '저는 리워드·미션 영역을 담당하는 팀에 있었습니다. 이 영역의 모든 기능은 포인트, 즉 돈을 다루기 때문에 빠른 배포만큼이나 정확성과 안전한 릴리즈가 중요했습니다.',
             ),
           ],
           did: [
             l(
-              'Delivered features end to end — React/TypeScript screens (mission list, reward history, coupon wallet), the Spring/Java APIs behind them, and the DB changes — from PM spec through QA to release.',
+              'Delivered features end to end, from PM spec through QA to release: React/TypeScript screens (mission list, reward history, coupon wallet), the Spring/Java APIs behind them, and the DB changes.',
               '기능을 처음부터 끝까지 맡아 개발했습니다. React/TypeScript 화면(미션 목록, 리워드 내역, 쿠폰함), 그 뒤의 Spring/Java API, DB 변경까지 기획 문서에서 QA, 릴리즈까지 한 흐름으로요.',
             ),
             l(
@@ -421,7 +421,7 @@ export const entries: Entry[] = [
               '"30초 영상을 보면 포인트 적립" 같은 미션은 서비스 참여도의 큰 부분을 차지합니다. 그런데 광고사마다(영상, 배너, 전면) SDK가 따로 있고 콜백, 노출 타이밍 규칙, 리워드 확인 방식이 전부 달랐습니다.',
             ),
             l(
-              'Each partner had been wired in ad hoc, so the same bugs — double rewards, rewards not paid when a user backgrounded the app mid-video — kept coming back per partner.',
+              'Each partner had been wired in ad hoc, so the same bugs kept coming back per partner: double rewards, or rewards not paid when a user backgrounded the app mid-video.',
               '광고사별로 따로따로 붙여 놓은 구조라서, 리워드 중복 지급이나 영상 중간에 앱을 백그라운드로 보냈을 때 지급이 안 되는 것 같은 버그가 광고사마다 반복해서 터졌습니다.',
             ),
           ],
@@ -456,13 +456,13 @@ export const entries: Entry[] = [
         detail: {
           context: [
             l(
-              'The points logic — accrual rules, expiry, partner settlement — was the part of the codebase nobody wanted to touch: little test coverage and lots of business rules buried in long service methods.',
+              'The points logic (accrual rules, expiry, partner settlement) was the part of the codebase nobody wanted to touch: little test coverage and lots of business rules buried in long service methods.',
               '포인트 로직(적립 규칙, 소멸, 파트너 정산)은 아무도 손대고 싶어 하지 않는 영역이었습니다. 테스트가 거의 없었고, 비즈니스 규칙이 긴 서비스 메서드 안에 묻혀 있었습니다.',
             ),
           ],
           did: [
             l(
-              'Introduced a review checklist for the team — points arithmetic, null and timezone handling, transaction boundaries, backward compatibility — and reviewed PRs across the team against it.',
+              'Introduced a review checklist for the team (points arithmetic, null and timezone handling, transaction boundaries, backward compatibility) and reviewed PRs across the team against it.',
               '팀 리뷰 체크리스트를 도입했습니다. 포인트 계산, null과 타임존 처리, 트랜잭션 경계, 하위 호환성 같은 항목이고, 이 기준으로 팀 전체의 PR을 리뷰했습니다.',
             ),
             l(
@@ -521,18 +521,18 @@ export const entries: Entry[] = [
       // ── Design collaboration ─────────────────────────────────
       {
         id: 'design-collab',
-        title: l('UX/UI collaboration with the design team — 30% more mobile traffic', '디자인팀과의 UX/UI 협업 — 모바일 트래픽 30% 증가'),
+        title: l('UX/UI collaboration with the design team, 30% more mobile traffic', '디자인팀과의 UX/UI 협업으로 모바일 트래픽 30% 증가'),
         stack: ['React', 'Design system', 'Component library'],
         detail: {
           context: [
             l(
-              'Design handoffs arrived as finished mockups, engineering approximated them, and the mismatch surfaced at QA — so screens shipped late or looked different from what was designed.',
+              'Design handoffs arrived as finished mockups, engineering approximated them, and the mismatch surfaced at QA, so screens shipped late or looked different from what was designed.',
               '디자인은 완성된 목업으로 넘어오고, 개발은 그걸 "비슷하게" 구현하고, 차이는 QA에서 드러나는 구조였습니다. 그래서 화면이 늦게 나가거나 디자인과 다르게 나갔습니다.',
             ),
           ],
           did: [
             l(
-              'Set up a weekly sync with the design team and joined design reviews early, flagging technical constraints — animation cost on low-end devices, data not yet available at that point in the flow — while designs were still cheap to change.',
+              'Set up a weekly sync with the design team and joined design reviews early, flagging technical constraints (animation cost on low-end devices, data not yet available at that point in the flow) while designs were still cheap to change.',
               '디자인팀과 주간 싱크를 만들고 디자인 리뷰에 초기부터 참여했습니다. 저사양 기기에서의 애니메이션 비용이나 그 시점에는 아직 없는 데이터 같은 기술적 제약을, 디자인을 바꾸는 비용이 아직 낮을 때 미리 공유했습니다.',
             ),
             l(
@@ -574,19 +574,19 @@ export const entries: Entry[] = [
       l('Data Pipelines · Quality · Lineage', '데이터 파이프라인 · 품질 · 계보'),
     ],
     summary: l(
-      'Worked on-site with Samsonite Korea — 500+ stores — extracting requirements from store and warehouse staff, making scoping calls, migrating a PDA .NET system to Node.js microservices, and building the data pipelines that connect ERP, POS, and warehouse data with quality checks, lineage, and row/column-level permissions.',
+      'Worked on-site with Samsonite Korea (500+ stores), extracting requirements from store and warehouse staff, making scoping calls, migrating a PDA .NET system to Node.js microservices, and building the data pipelines that connect ERP, POS, and warehouse data with quality checks, lineage, and row/column-level permissions.',
       '쌤소나이트 코리아(500여 개 매장) 현장에서 일했습니다. 매장과 창고 직원들에게서 직접 요구사항을 끌어내고 범위를 정했으며, PDA .NET 시스템을 Node.js 마이크로서비스로 옮기고, ERP·POS·물류 데이터를 품질 검증, 계보 추적, 행·열 단위 권한과 함께 연결하는 데이터 파이프라인을 만들었습니다.',
     ),
     stories: [
       // ── EPOS ─────────────────────────────────────────────────
       {
         id: 'epos',
-        title: l('Samsonite EPOS web system for 500+ stores', '쌤소나이트 EPOS 웹 시스템 — 전국 500여 개 매장'),
+        title: l('Samsonite EPOS web system for 500+ stores', '전국 500여 개 매장의 쌤소나이트 EPOS 웹 시스템'),
         stack: ['Spring Boot', 'MSSQL', 'On-site support'],
         detail: {
           context: [
             l(
-              'Nexol System builds and operates the EPOS (point-of-sale) and logistics systems for Samsonite Korea — 500+ department-store and outlet locations. If EPOS is down, a store cannot ring up a sale.',
+              'Nexol System builds and operates the EPOS (point-of-sale) and logistics systems for Samsonite Korea, 500+ department-store and outlet locations. If EPOS is down, a store cannot ring up a sale.',
               '넥솔시스템은 쌤소나이트 코리아의 EPOS(판매 시점 관리)와 물류 시스템을 개발·운영하는 회사입니다. 백화점과 아울렛을 합쳐 500여 개 매장이 이 시스템으로 판매하고, EPOS가 멈추면 매장은 결제를 받을 수 없습니다.',
             ),
             l(
@@ -600,11 +600,11 @@ export const entries: Entry[] = [
               'Spring Boot / MSSQL 기반 EPOS 백엔드를 운영하고 확장했습니다. 판매·반품, 프로모션과 쿠폰 규칙, 매장 재고 조회, 일일 정산과 마감 처리가 주요 영역이었습니다.',
             ),
             l(
-              'Sat in requirement meetings with Samsonite stakeholders and made the scoping calls: which part of a request was a real need, which could be covered by an existing feature, and what to push to a later phase — then explained the trade-offs to store managers and merchandisers in their terms, not ours.',
+              'Sat in requirement meetings with Samsonite stakeholders and made the scoping calls: which part of a request was a real need, which could be covered by an existing feature, and what to push to a later phase. Then I explained the trade-offs to store managers and merchandisers in their terms, not ours.',
               '쌤소나이트 담당자들과의 요구사항 회의에 직접 참여해 범위를 정했습니다. 요청 중 무엇이 진짜 필요한 것인지, 무엇은 기존 기능으로 해결되는지, 무엇은 다음 단계로 미룰지를 판단하고, 그 이유를 매장 관리자와 MD가 이해할 수 있는 말로 설명했습니다.',
             ),
             l(
-              'Handled store-facing incidents end to end — reading logs, reproducing with real store data, shipping hotfixes — which taught me how staff actually used the system versus how it was designed.',
+              'Handled store-facing incidents end to end (reading logs, reproducing with real store data, shipping hotfixes), which taught me how staff actually used the system versus how it was designed.',
               '매장에서 올라오는 장애도 처음부터 끝까지 처리했습니다. 로그를 읽고, 실제 매장 데이터로 재현하고, 핫픽스를 배포하는 과정에서 시스템이 설계된 방식과 직원들이 실제로 쓰는 방식이 어떻게 다른지 배웠습니다.',
             ),
           ],
@@ -625,7 +625,7 @@ export const entries: Entry[] = [
         detail: {
           context: [
             l(
-              'The warehouse team kept reporting that "the PDA is slow", but the tickets never pointed at anything specific in the code — nothing was measurably slow on our side.',
+              'The warehouse team kept reporting that "the PDA is slow", but the tickets never pointed at anything specific in the code, and nothing was measurably slow on our side.',
               '물류창고 팀에서는 계속 "PDA가 느리다"고 했지만, 티켓에는 코드에서 짚을 만한 내용이 없었습니다. 저희 쪽 측정으로는 느린 게 없었거든요.',
             ),
           ],
@@ -635,11 +635,11 @@ export const entries: Entry[] = [
               '티켓을 더 달라고 하는 대신 쌤소나이트 물류창고에 직접 가서, 작업자들의 입출고 근무 한 교대를 처음부터 끝까지 따라다녔습니다.',
             ),
             l(
-              'Found the real problem: for each carton, workers scanned the box barcode, then every item barcode, then confirmed a popup — three or more actions per unit, thousands of times a day. The software wasn’t slow; the workflow was.',
+              'Found the real problem: for each carton, workers scanned the box barcode, then every item barcode, then confirmed a popup: three or more actions per unit, thousands of times a day. The software wasn’t slow; the workflow was.',
               '진짜 문제가 보였습니다. 상자 하나마다 박스 바코드를 찍고, 안의 개별 상품 바코드를 전부 찍고, 팝업을 확인하는 식으로 단위당 세 번 이상의 동작을 하루에 수천 번 반복하고 있었습니다. 느린 건 소프트웨어가 아니라 업무 흐름이었습니다.',
             ),
             l(
-              'Proposed a single-scan flow and defended it to the logistics manager, who worried about losing per-item verification: scan the carton once, the Node.js service resolves its packing list from the ERP, pre-fills the items, and asks for confirmation only on discrepancies — with audio and color feedback because operators don’t watch the screen.',
+              'Proposed a single-scan flow and defended it to the logistics manager, who worried about losing per-item verification: scan the carton once, the Node.js service resolves its packing list from the ERP, pre-fills the items, and asks for confirmation only on discrepancies, with audio and color feedback because operators don’t watch the screen.',
               '싱글 스캔 방식을 제안하고, 개별 검수가 빠질까 걱정하는 물류 관리자를 설득했습니다. 상자를 한 번만 찍으면 Node.js 서비스가 ERP에서 포장 명세를 가져와 상품을 자동으로 채우고, 명세와 다를 때만 확인을 요구하는 방식입니다. 작업자들이 화면을 보지 않기 때문에 불일치는 소리와 색으로 알려주도록 했습니다.',
             ),
           ],
@@ -674,7 +674,7 @@ export const entries: Entry[] = [
               '창고 구역별로 기존 시스템과 새 시스템을 나란히 운영하며 매일 결과를 비교한 뒤 구역 하나씩 전환했고, 마지막 구역이 안정될 때까지 .NET 시스템을 대비책으로 남겨 두었습니다.',
             ),
             l(
-              'Owned deployment and operations afterward — Dockerized services, health checks, centralized logging, and on-call.',
+              'Owned deployment and operations afterward: Dockerized services, health checks, centralized logging, and on-call.',
               '전환 뒤에는 배포와 운영을 직접 맡았습니다. 서비스를 Docker로 패키징하고, 헬스 체크와 중앙 로깅을 붙이고, 장애 대응도 담당했습니다.',
             ),
           ],
@@ -695,13 +695,13 @@ export const entries: Entry[] = [
         detail: {
           context: [
             l(
-              'Samsonite’s data lived in separate systems — the SAP ERP (product master, purchase orders), the EPOS database (sales, returns, store inventory), the warehouse system (inbound/outbound), and Excel files from department stores for settlement — and they disagreed with each other often enough that HQ did not trust the reports.',
+              'Samsonite’s data lived in separate systems: the SAP ERP (product master, purchase orders), the EPOS database (sales, returns, store inventory), the warehouse system (inbound/outbound), and Excel files from department stores for settlement. They disagreed with each other often enough that HQ did not trust the reports.',
               '쌤소나이트의 데이터는 여러 시스템에 흩어져 있었습니다. SAP ERP(상품 마스터, 발주), EPOS DB(판매·반품·매장 재고), 물류 시스템(입출고), 그리고 백화점에서 정산용으로 보내는 엑셀 파일까지요. 이 데이터가 서로 안 맞는 일이 잦아서 본사가 리포트를 믿지 못하는 상황이었습니다.',
             ),
           ],
           did: [
             l(
-              'Built the nightly batch pipelines (SQL + Node.js jobs) that pull from each source — ERP interface tables, the EPOS DB, warehouse events, and parsed department-store files — into a shared reporting schema.',
+              'Built the nightly batch pipelines (SQL + Node.js jobs) that pull from each source (ERP interface tables, the EPOS DB, warehouse events, and parsed department-store files) into a shared reporting schema.',
               '각 소스에서 데이터를 가져오는 야간 배치 파이프라인(SQL + Node.js 잡)을 만들었습니다. ERP 인터페이스 테이블, EPOS DB, 물류 이벤트, 파싱한 백화점 파일을 하나의 리포팅 스키마로 모았습니다.',
             ),
             l(
@@ -709,7 +709,7 @@ export const entries: Entry[] = [
               '단계마다 품질 검증을 넣었습니다. 행 수와 합계를 소스와 대조하고, SKU를 ERP 마스터와 검증하고, 실패한 레코드는 격리 테이블로 보내서 잘못된 데이터가 조용히 들어가는 대신 드러나게 했습니다.',
             ),
             l(
-              'Tracked lineage — every reporting row carries its source system, batch ID, and load time — so when a number looked wrong, we could trace it back to the exact file or table it came from.',
+              'Tracked lineage: every reporting row carries its source system, batch ID, and load time, so when a number looked wrong, we could trace it back to the exact file or table it came from.',
               '데이터의 출처도 추적했습니다. 리포팅 테이블의 모든 행에 소스 시스템, 배치 ID, 적재 시각을 남겨서, 숫자가 이상하면 어느 파일이나 테이블에서 온 것인지 바로 되짚을 수 있게 했습니다.',
             ),
             l(
@@ -729,12 +729,12 @@ export const entries: Entry[] = [
       // ── DB performance ───────────────────────────────────────
       {
         id: 'db-performance',
-        title: l('Query performance under high traffic — 20% faster', '고트래픽 환경의 쿼리 성능 개선 — 응답 시간 20% 단축'),
+        title: l('Query performance under high traffic, 20% faster', '고트래픽 환경의 쿼리 응답 시간 20% 단축'),
         stack: ['MSSQL', 'Execution plans', 'Indexing', 'Caching'],
         detail: {
           context: [
             l(
-              'Store managers ran sales and inventory reports at the same times every day — opening and closing — and with 500+ stores hitting the same MSSQL tables, report queries slowed to tens of seconds at peak.',
+              'Store managers ran sales and inventory reports at the same times every day, opening and closing, and with 500+ stores hitting the same MSSQL tables, report queries slowed to tens of seconds at peak.',
               '매장 관리자들은 매일 같은 시간, 즉 오픈과 마감 때 판매·재고 리포트를 조회합니다. 500여 개 매장이 동시에 같은 MSSQL 테이블을 두드리니, 피크 시간에는 리포트 쿼리가 수십 초까지 느려졌습니다.',
             ),
           ],
@@ -769,13 +769,13 @@ export const entries: Entry[] = [
         detail: {
           context: [
             l(
-              'After the microservice migration, a single transaction passed through several services, and one field renamed or typed differently in one service could silently corrupt data downstream — quantities landing in the wrong field, for instance.',
+              'After the microservice migration, a single transaction passed through several services, and one field renamed or typed differently in one service could silently corrupt data downstream, quantities landing in the wrong field, for instance.',
               '마이크로서비스로 전환한 뒤에는 트랜잭션 하나가 여러 서비스를 거치게 되었습니다. 한 서비스에서 필드 이름이나 타입이 하나만 바뀌어도 뒤쪽 데이터가 조용히 오염될 수 있었습니다. 예를 들어 수량이 엉뚱한 필드에 들어가는 식으로요.',
             ),
           ],
           did: [
             l(
-              'Built a Postman regression suite (10+ scenarios) covering the main flows end to end — receive, ship, return, adjust — with schema and field-level assertions on every JSON request and response between the Spring Boot services.',
+              'Built a Postman regression suite (10+ scenarios) covering the main flows end to end (receive, ship, return, adjust) with schema and field-level assertions on every JSON request and response between the Spring Boot services.',
               '입고·출고·반품·조정 같은 주요 흐름을 처음부터 끝까지 커버하는 Postman 회귀 테스트(10개 이상 시나리오)를 만들었습니다. Spring Boot 서비스 간의 모든 JSON 요청·응답에 스키마 검증과 필드 단위 검증을 넣었습니다.',
             ),
             l(

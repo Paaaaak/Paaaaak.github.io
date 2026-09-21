@@ -611,16 +611,16 @@ ul, ol { margin: 0; padding: 0; }
 .story__bullets li::before { content: ''; position: absolute; left: 0; top: 11px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
 
 .modal__label {
-  margin-top: 26px; margin-bottom: 10px;
-  font-family: var(--mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: .12em;
-  color: var(--accent); font-weight: 600;
-  display: flex; align-items: center; gap: 10px;
+  margin-top: 34px; margin-bottom: 14px;
+  font-size: 22px; font-weight: 700; letter-spacing: -0.02em;
+  color: var(--accent);
+  display: flex; align-items: center; gap: 14px;
 }
-.detail .modal__label::after { content: ''; flex: 1; height: 1px; background: color-mix(in srgb, var(--accent) 18%, transparent); }
+.detail .modal__label::after { content: ''; flex: 1; height: 1px; background: color-mix(in srgb, var(--accent) 22%, transparent); }
 .modal__label--first { margin-top: 0; }
-:lang(ko) .modal__label { letter-spacing: .02em; font-family: inherit; font-size: 13px; font-weight: 700; }
-.case .modal__label { font-size: 13px; letter-spacing: .08em; text-transform: none; font-family: var(--sans, inherit); font-weight: 700; color: var(--text); }
-.case .modal__label .case__step { font-family: var(--mono); font-size: 12px; }
+:lang(ko) .modal__label { letter-spacing: 0; }
+.case .modal__label { font-size: 22px; letter-spacing: -0.02em; color: var(--accent); }
+.case .modal__label .case__step { font-family: var(--mono); font-size: 14px; font-weight: 600; opacity: .7; min-width: 0; margin-right: 0; }
 .modal__text { color: var(--text-2); }
 .modal__list { list-style: none; display: grid; gap: 10px; }
 .modal__list li { position: relative; padding-left: 20px; color: var(--text-2); }
@@ -727,7 +727,7 @@ ul, ol { margin: 0; padding: 0; }
   border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
 }
 .case__callout-title {
-  font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
-  color: var(--accent); font-weight: 600; margin-bottom: 10px;
+  font-size: 19px; letter-spacing: -0.015em;
+  color: var(--accent); font-weight: 700; margin-bottom: 12px;
 }
 .case__callout .modal__list li { font-size: 14.5px; }
