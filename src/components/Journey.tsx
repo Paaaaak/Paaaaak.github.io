@@ -106,8 +106,10 @@ export default function Journey() {
 
                 <button type="button" className="entry__cta" onClick={() => setOpen(e)}>
                   <span className="entry__cta-text">{t(ui.entry.open)}</span>
-                  <span className="entry__cta-line" aria-hidden="true" />
-                  <span className="entry__cta-arrow" aria-hidden="true">→</span>
+                  <span className="entry__cta-orb" aria-hidden="true">
+                    <span className="entry__cta-arrow">→</span>
+                    <span className="entry__cta-arrow entry__cta-arrow--next">→</span>
+                  </span>
                 </button>
               </div>
             </div>
