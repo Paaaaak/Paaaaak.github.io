@@ -52,9 +52,14 @@ export const ui = {
     work: l('Work', '경력'),
     education: l('Education', '학력'),
     open: l('View details', '자세히 보기'),
-    context: l('Context', '상황'),
+    context: l('Context', '배경'),
     did: l('What I did', '한 일'),
     result: l('Result', '결과'),
+    architecture: l('Architecture', '아키텍처'),
+    featured: l('Case study', '케이스 스터디'),
+    problem: l('Problem', '문제 원인'),
+    solution: l('Solution', '해결 과정'),
+    promptDesign: l('Prompt & context engineering', '프롬프트 & 컨텍스트 엔지니어링'),
   },
   footer: {
     sub: l(

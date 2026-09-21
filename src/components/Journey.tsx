@@ -63,6 +63,7 @@ export default function Journey() {
             ref={(el) => (refs.current[e.id] = el)}
             className={`entry entry--${dir} ${active === e.id ? 'is-active' : ''}`}
             style={style}
+            onClick={() => setOpen(e)}
           >
             <span className="entry__dot" aria-hidden="true" />
             <span className="entry__branch" aria-hidden="true" />
@@ -104,7 +105,9 @@ export default function Journey() {
                 </ul>
 
                 <button type="button" className="entry__cta" onClick={() => setOpen(e)}>
-                  {t(ui.entry.open)} <span aria-hidden="true">→</span>
+                  <span className="entry__cta-text">{t(ui.entry.open)}</span>
+                  <span className="entry__cta-line" aria-hidden="true" />
+                  <span className="entry__cta-arrow" aria-hidden="true">→</span>
                 </button>
               </div>
             </div>
@@ -114,7 +117,7 @@ export default function Journey() {
 
       <span className="journey__end" aria-hidden="true" />
 
-      <EntryModal entry={open} onClose={() => setOpen(null)} />
+      <EntryModal entry={open} onClose={() => setOpen(null)} onNavigate={setOpen} />
     </div>
   )
 }
