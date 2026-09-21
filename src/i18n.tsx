@@ -11,15 +11,8 @@ const LangContext = createContext<Ctx | null>(null)
 const STORAGE_KEY = 'portfolio.lang'
 
 export function LangProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      if (saved === 'en' || saved === 'ko') return saved
-    } catch {
-      /* ignore */
-    }
-    return 'en'
-  })
+  // 언어 토글을 제거했으므로 항상 영어로 시작 (한국어 데이터는 유지)
+  const [lang, setLangState] = useState<Lang>('en')
 
   const setLang = (next: Lang) => {
     setLangState(next)
