@@ -62,11 +62,11 @@ export const entries: Entry[] = [
     tags: [
       l('LLM Agents · Tool Calling', 'LLM 에이전트 · Tool Calling'),
       l('Prompt & Context Engineering', '프롬프트 & 컨텍스트 엔지니어링'),
-      l('AI Coding Agents in Production', '프로덕션 AI 코딩 에이전트'),
+      l('Retrieval & Embedding Pipelines', '검색 & 임베딩 파이프라인'),
     ],
     summary: l(
-      'Built production LLM applications for an e-commerce engineering org: a tool-calling code review agent in Azure DevOps CI/CD, a retrieval and embedding pipeline for recommendations, and automated model retraining, using AI coding agents (Claude Code) as the daily development harness.',
-      '이커머스 엔지니어링 조직에서 프로덕션 LLM 애플리케이션을 만들었습니다. Azure DevOps CI/CD에 붙인 tool-calling 코드 리뷰 에이전트, 추천을 위한 검색·임베딩 파이프라인, 모델 재학습 자동화까지. 개발은 AI 코딩 에이전트(Claude Code)를 기본 하네스로 삼아 진행했습니다.',
+      'My first internship in the U.S., where I learned to work with AI and bring it into existing services: a Claude-based code review agent wired into the team’s Azure DevOps CI/CD, and a vector-based recommendation service with automated retraining of the legacy model.',
+      '미국에서의 첫 인턴십으로, AI를 다루고 기존 서비스에 통합하는 법을 배운 곳입니다. 팀의 Azure DevOps CI/CD에 연결한 Claude 기반 코드 리뷰 에이전트와, 레거시 모델 재학습을 자동화한 벡터 기반 추천 서비스를 만들었습니다.',
     ),
     stories: [
       // ── 1. AI code review agent ──────────────────────────────
@@ -127,8 +127,8 @@ export const entries: Entry[] = [
               '에이전트에 tool/function calling으로 write-back 도구를 붙였습니다. "특정 변경 라인에 인라인 코멘트 달기", "PR 전체 요약 남기기" 두 가지 도구가 Azure DevOps REST API 위에서 동작하며, 어디에 어떤 지적을 남길지는 모델이 정하고 실행은 하네스가 합니다.',
             ),
             l(
-              'Evaluated it against a golden set of ~40 past PRs with known human review comments, measuring how many real issues it caught and how many comments reviewers marked as noise, and iterated on prompt structure and severity thresholds until the noise rate was acceptable.',
-              '사람 리뷰 코멘트가 남아 있는 과거 PR 약 40개로 골든 셋을 만들어 평가했습니다. 실제 이슈를 얼마나 잡아내는지, 리뷰어가 "불필요"로 표시한 코멘트가 얼마나 되는지를 측정하고, 노이즈 비율이 납득할 수준이 될 때까지 프롬프트 구조와 심각도 기준을 조정했습니다.',
+              'Tested it against real pull requests and adjusted the prompt structure and severity thresholds until the comments were useful and the noise was low.',
+              '실제 PR을 대상으로 테스트하면서, 코멘트가 실제로 도움이 되고 불필요한 지적은 적어질 때까지 프롬프트 구조와 심각도 기준을 조정했습니다.',
             ),
           ],
           promptDesign: [
@@ -169,45 +169,33 @@ export const entries: Entry[] = [
       // ── 2. Vector recommendation ──────────────────────────────
       {
         id: 'vector-recs',
-        title: l('Vector-based product recommendations on Azure AI Search', 'Azure AI Search 기반 벡터 상품 추천'),
-        stack: ['Azure AI Search', 'Azure OpenAI Embeddings', 'Python', 'Hybrid retrieval'],
+        title: l('Vector-based recommendation service on Azure AI Search', 'Azure AI Search 기반 벡터 추천 서비스'),
+        stack: ['Azure AI Search', 'Embeddings', 'Python'],
         detail: {
           context: [
             l(
-              'Recommendations were driven entirely by the legacy SAR model, which only knows co-purchase patterns. Merchandising asked whether we could also recommend by product attributes such as scent family, notes, brand, concentration and price band, so someone viewing a woody oud fragrance would see similar scents, not just what other shoppers happened to buy alongside it.',
-              '기존 추천은 레거시 SAR 모델 하나로 돌아갔고, 이 모델은 "함께 구매된 상품" 패턴만 알고 있었습니다. 머천다이징 팀에서 향 계열, 노트, 브랜드, 농도, 가격대 같은 상품 속성 기준으로도 추천할 수 없겠냐는 제안이 들어왔습니다. 우디 계열 오드 향수를 보고 있는 고객에게 단순히 같이 팔린 상품이 아니라 비슷한 향을 보여주자는 것이었습니다.',
-            ),
-            l(
-              'A first attempt with hand-written attribute rules (same brand + same family) was brittle: every new attribute meant new rules, and rules cannot rank how similar two products are.',
-              '처음에는 "같은 브랜드 + 같은 계열" 식의 수작업 규칙으로 시도했지만 금방 한계가 왔습니다. 속성이 하나 늘어날 때마다 규칙을 다시 짜야 했고, 무엇보다 두 상품이 "얼마나" 비슷한지 순위를 매길 수 없었습니다.',
+              'The existing recommendation system only knew which products were bought together. It had no way to say that two products are similar in themselves, so a customer looking at one fragrance would not see others that smell alike unless people had already bought them together.',
+              '기존 추천은 "함께 구매된 상품"만 알고 있었습니다. 상품 자체가 서로 비슷하다는 걸 판단할 수 없어서, 어떤 향수를 보고 있는 고객에게 비슷한 향의 상품을 보여주려면 누군가 이미 그 둘을 함께 산 기록이 있어야 했습니다.',
             ),
           ],
           did: [
             l(
-              'Built an embedding pipeline: each product’s structured attributes and description are merged into one text document, embedded with an Azure OpenAI text-embedding model, and stored in an Azure AI Search index with an HNSW vector field plus filterable fields (brand, gender, price, in-stock).',
-              '상품 임베딩 파이프라인을 만들었습니다. 상품의 구조화된 속성과 설명을 하나의 텍스트로 합쳐 Azure OpenAI 임베딩 모델로 벡터화하고, Azure AI Search 인덱스에 HNSW 벡터 필드와 필터용 필드(브랜드, 성별, 가격, 재고 여부)를 함께 저장했습니다.',
+              'Turned each product’s name, description and attributes into an embedding (a list of numbers that captures its meaning) and stored them in an Azure AI Search index that supports vector search.',
+              '각 상품의 이름, 설명, 속성을 임베딩(상품의 의미를 숫자 벡터로 표현한 것)으로 바꾸고, 벡터 검색을 지원하는 Azure AI Search 인덱스에 저장했습니다.',
             ),
             l(
-              'Designed the query path as hybrid retrieval: vector similarity for "smells like this", combined with filter clauses for hard constraints (in stock, same gender category, price within ±30%) so results are both similar and actually purchasable.',
-              '검색은 하이브리드로 설계했습니다. "이 향과 비슷한 것"은 벡터 유사도로 찾고, 재고 있음·같은 성별 카테고리·가격 ±30% 같은 필수 조건은 필터로 걸어서, 비슷하면서도 실제로 구매 가능한 상품만 나오게 했습니다.',
+              'Built the service that takes a product, finds the closest vectors in the index, and returns them as "similar products", with basic filters such as in-stock only.',
+              '상품 하나를 받으면 인덱스에서 가장 가까운 벡터들을 찾아 "비슷한 상품"으로 돌려주는 서비스를 만들었습니다. 재고 있는 상품만 보여주는 것 같은 기본 필터도 넣었습니다.',
             ),
             l(
-              'Kept the index in sync with the catalog through an incremental indexer: catalog changes land in a change feed, only changed SKUs are re-embedded, and discontinued products are purged nightly.',
-              '인덱스는 증분 방식으로 카탈로그와 동기화했습니다. 카탈로그 변경이 change feed로 들어오면 바뀐 SKU만 다시 임베딩하고, 단종 상품은 매일 밤 정리합니다.',
-            ),
-            l(
-              'Exposed it as a REST endpoint with the same response contract as the SAR path, so the storefront could A/B the two sources without any frontend change.',
-              '응답 형식을 기존 SAR 경로와 똑같이 맞춘 REST 엔드포인트로 제공해, 프론트엔드 수정 없이 두 추천 소스를 A/B 테스트할 수 있게 했습니다.',
+              'Wrote the job that keeps the index in step with the product catalog, so new or changed products get embedded and added without a manual step.',
+              '상품 카탈로그가 바뀌면 인덱스도 따라가도록, 새 상품이나 변경된 상품을 자동으로 임베딩해서 넣는 작업을 만들었습니다.',
             ),
           ],
           result: [
             l(
-              'Recommendations now reflect product attributes as well as purchase history, and merchandising can tune the balance between the two without code changes.',
-              '이제 추천에 구매 이력뿐 아니라 상품 속성이 반영되고, 머천다이징 팀이 코드 수정 없이 두 방식의 비중을 조절할 수 있습니다.',
-            ),
-            l(
-              'Shipped to production as an additional recommendation source next to SAR. The same index doubles as the retrieval layer for a RAG-style product Q&A prototype that grounds answers in catalog data instead of the model’s memory.',
-              'SAR과 나란히 동작하는 추가 추천 소스로 프로덕션에 배포했습니다. 같은 인덱스는 모델의 기억이 아닌 카탈로그 데이터에 근거해 답하는 RAG 방식 상품 Q&A 프로토타입의 검색 계층으로도 쓰이고 있습니다.',
+              'Product pages can now recommend items that are similar in content, not only in purchase history, and the service runs alongside the existing recommendation path in production.',
+              '이제 상품 페이지에서 구매 이력이 아니라 상품 내용이 비슷한 것도 추천할 수 있고, 이 서비스는 기존 추천과 함께 프로덕션에서 동작하고 있습니다.',
             ),
           ],
         },
@@ -216,41 +204,29 @@ export const entries: Entry[] = [
       // ── 3. SAR retraining automation ──────────────────────────
       {
         id: 'sar-retraining',
-        title: l('Automated SAR model retraining with Azure Functions', 'Azure Functions로 SAR 모델 재학습 자동화'),
-        stack: ['Azure Functions (timer trigger)', 'Azure Blob Storage', 'Python', 'SAR'],
+        title: l('Automated retraining of the legacy SAR model with Azure Functions', 'Azure Functions로 레거시 SAR 모델 재학습 자동화'),
+        stack: ['Azure Functions', 'Python', 'SAR'],
         detail: {
           context: [
             l(
-              'The legacy SAR (Smart Adaptive Recommendations) model was retrained by hand: an engineer exported recent order data, ran a training notebook on their laptop, and uploaded the output. In practice that happened every few weeks, so new products had no recommendations and seasonal shifts showed up late.',
-              '레거시 SAR(Smart Adaptive Recommendations) 모델은 사람이 직접 재학습시키고 있었습니다. 엔지니어가 최근 주문 데이터를 뽑아 노트북에서 학습 스크립트를 돌리고 결과를 업로드하는 방식이었죠. 실제로는 몇 주에 한 번 정도 이루어져서, 신상품은 추천에 뜨지 않고 시즌 변화도 늦게 반영됐습니다.',
-            ),
-            l(
-              'It was also fragile: tied to one person’s machine, with no record of which data window a given model had been trained on.',
-              '한 사람의 장비에 묶여 있어 취약했고, 특정 모델이 어느 기간의 데이터로 학습됐는지 기록도 남지 않았습니다.',
+              'The existing recommendation model (SAR, a Microsoft algorithm based on which products are bought together) had to be retrained by hand. Someone pulled the latest order data, ran the training, and uploaded the result, so it happened irregularly and new products took a long time to show up in recommendations.',
+              '기존 추천 모델(SAR, 함께 구매된 상품 기반으로 동작하는 마이크로소프트 알고리즘)은 사람이 직접 재학습시켜야 했습니다. 최신 주문 데이터를 뽑아서 학습을 돌리고 결과를 올리는 과정이 손으로 이루어져서 주기가 불규칙했고, 신상품이 추천에 반영되기까지 오래 걸렸습니다.',
             ),
           ],
           did: [
             l(
-              'Rebuilt the run as a timer-triggered Azure Function on a weekly schedule: it pulls the last N months of orders and product views from the transactional DB, builds the user–item interaction matrix, and fits SAR (item-item co-occurrence with time decay) using the same hyperparameters as the manual run.',
-              '재학습을 매주 실행되는 타이머 트리거 Azure Function으로 다시 만들었습니다. 트랜잭션 DB에서 최근 N개월의 주문과 상품 조회 데이터를 가져와 사용자–상품 상호작용 행렬을 만들고, 기존 수동 실행과 같은 하이퍼파라미터로 SAR(시간 감쇠가 적용된 아이템 간 동시 발생 모델)을 학습합니다.',
+              'Moved the whole retraining run into an Azure Function that runs on a schedule: it pulls recent order data, retrains the SAR model, and publishes the new model where the recommendation service reads it.',
+              '재학습 과정 전체를 스케줄에 따라 실행되는 Azure Function으로 옮겼습니다. 최근 주문 데이터를 가져와 SAR 모델을 다시 학습하고, 새 모델을 추천 서비스가 읽는 위치에 올리는 것까지 한 번에 처리합니다.',
             ),
             l(
-              'Each run writes the item-similarity table and a versioned model artifact to Blob Storage under a dated path, then validates it (row counts, coverage of active SKUs, and top-k overlap with the previous model) before moving a "current" pointer that the recommendation API reads.',
-              '실행마다 아이템 유사도 테이블과 버전이 붙은 모델 파일을 날짜별 경로로 Blob Storage에 저장하고, 검증을 거칩니다. 행 개수, 판매 중인 SKU 커버리지, 이전 모델과의 top-k 겹침 정도를 확인한 뒤에야 추천 API가 읽는 "current" 포인터를 새 모델로 옮깁니다.',
-            ),
-            l(
-              'Added failure alerts and a retry path so a failed run leaves the previous model serving instead of breaking recommendations.',
-              '실패 알림과 재시도 경로를 추가해, 학습이 실패해도 추천이 끊기지 않고 이전 모델이 그대로 서비스되도록 했습니다.',
+              'Added a simple check before publishing so a run that produced an empty or broken model leaves the previous one in place instead of replacing it.',
+              '새 모델을 올리기 전에 간단한 검증을 넣어서, 결과가 비어 있거나 잘못 나온 경우에는 이전 모델을 그대로 두도록 했습니다.',
             ),
           ],
           result: [
             l(
-              'Retraining went from every few weeks by hand to weekly and unattended; new products get recommendations within a week of launch.',
-              '재학습이 "몇 주에 한 번, 사람이 직접"에서 "매주, 자동"으로 바뀌었고, 신상품도 출시 후 일주일 안에 추천에 반영됩니다.',
-            ),
-            l(
-              'Every model is reproducible, since the data window and parameters are logged, and rollback is a single pointer change.',
-              '모든 모델의 학습 기간과 파라미터가 기록되어 재현이 가능하고, 문제가 생기면 포인터 하나만 되돌리면 됩니다.',
+              'Retraining now happens automatically on a fixed schedule with no one having to run it, and together with the vector service this modernized the production recommendation platform.',
+              '재학습이 정해진 주기에 자동으로 돌아가고 사람이 손댈 일이 없어졌습니다. 벡터 추천 서비스와 함께, 프로덕션 추천 플랫폼을 현대화한 작업입니다.',
             ),
           ],
         },
@@ -290,13 +266,13 @@ export const entries: Entry[] = [
     accent: '#0284c7',
     accentSoft: '#e0f2fe',
     tags: [
-      l('Full-stack (TypeScript/React + Spring)', '풀스택 (TypeScript/React + Spring)'),
+      l('Java Full-stack (Spring + React)', 'Java 풀스택 (Spring + React)'),
       l('Kubernetes Operations', 'Kubernetes 운영'),
       l('10M+ Users in Production', '1,000만+ 사용자 프로덕션'),
     ],
     summary: l(
-      'Full-stack engineer on OK Cashbag, a mobile web app serving 10M+ users in Korea: shipped TypeScript/React and Spring features quickly and hardened the ad-reward service on Kubernetes so a faulty instance is isolated and restarted automatically.',
-      '한국 1,000만+ 사용자의 OK캐쉬백 모바일 웹을 담당한 풀스택 엔지니어입니다. TypeScript/React와 Spring으로 기능을 빠르게 만들어 배포했고, 광고 리워드 서비스를 Kubernetes에서 운영해 장애 인스턴스가 자동으로 격리·재시작되도록 만들었습니다.',
+      'Java full-stack developer on OK Cashbag, a rewards platform with 10M+ users in Korea. Integrated third-party ad providers, made the reward payment logic reliable with tests, sped up the pages, and ran the reward service on Kubernetes so a broken instance is isolated and restarted on its own.',
+      '국내 1,000만+ 사용자의 리워드 플랫폼 OK캐쉬백에서 Java 풀스택 개발자로 일했습니다. 서드파티 광고사를 연동하고, 리워드 지급 로직을 테스트로 안정화하고, 페이지 속도를 올렸으며, 리워드 서비스를 Kubernetes에서 운영해 고장 난 인스턴스가 스스로 격리·재시작되도록 만들었습니다.',
     ),
     stories: [
       // ── ★ Kubernetes: reward service resilience ──────────────
@@ -373,37 +349,29 @@ export const entries: Entry[] = [
       // ── OK Cashbag ───────────────────────────────────────────
       {
         id: 'ok-cashbag',
-        title: l('Full-stack features on OK Cashbag mobile web for 10M+ users', '1,000만+ 사용자 OK캐쉬백 모바일 웹 풀스택 개발'),
-        stack: ['React', 'TypeScript', 'Spring', 'Java', 'Feature flags'],
+        title: l('OK Cashbag mobile web, a rewards platform for 10M+ users', 'OK캐쉬백 모바일 웹, 1,000만+ 사용자의 리워드 플랫폼'),
+        stack: ['Spring', 'Java', 'React'],
         detail: {
           context: [
             l(
-              'OK Cashbag is one of Korea’s largest loyalty programs. Its mobile web is where 10M+ members check points, use coupons, and complete reward missions (ads, surveys, app installs).',
-              'OK캐쉬백은 국내 최대 규모의 멤버십 서비스 중 하나입니다. 1,000만 명이 넘는 회원이 모바일 웹에서 포인트를 확인하고, 쿠폰을 쓰고, 광고·설문·앱 설치 같은 리워드 미션을 수행합니다.',
-            ),
-            l(
-              'I was on the team that owns the reward and missions area. Every feature there touches points, which is money, so correctness and safe releases mattered as much as shipping speed.',
-              '저는 리워드·미션 영역을 담당하는 팀에 있었습니다. 이 영역의 모든 기능은 포인트, 즉 돈을 다루기 때문에 빠른 배포만큼이나 정확성과 안전한 릴리즈가 중요했습니다.',
+              'OK Cashbag is a cash-like rewards platform in Korea with more than 10 million users. People earn points by joining events, playing mini-games, or watching ads, and spend them on purchases, partner points, or gift cards.',
+              'OK캐쉬백은 국내 1,000만 명 이상이 쓰는 현금성 리워드 플랫폼입니다. 이벤트 참여, 미니게임, 광고 시청으로 포인트를 모으고, 그 포인트를 결제나 제휴 포인트, 기프트카드로 쓸 수 있습니다.',
             ),
           ],
           did: [
             l(
-              'Delivered features end to end, from PM spec through QA to release: React/TypeScript screens (mission list, reward history, coupon wallet), the Spring/Java APIs behind them, and the DB changes.',
-              '기능을 처음부터 끝까지 맡아 개발했습니다. React/TypeScript 화면(미션 목록, 리워드 내역, 쿠폰함), 그 뒤의 Spring/Java API, DB 변경까지 기획 문서에서 QA, 릴리즈까지 한 흐름으로요.',
+              'Worked as a Java full-stack developer on the mobile web app: Spring on the backend, React on the frontend.',
+              '모바일 웹 앱의 Java 풀스택 개발자로 일했습니다. 백엔드는 Spring, 프론트엔드는 React였습니다.',
             ),
             l(
-              'Stood up usable internal tools quickly when the ops team needed them: for example a React + Spring admin console for scheduling missions and reviewing reward payouts, from request to first usable version in about a week.',
-              '운영팀이 필요로 하는 내부 도구도 빠르게 만들어 냈습니다. 예를 들어 미션 일정을 등록하고 리워드 지급 내역을 검토하는 React + Spring 관리자 콘솔은 요청부터 실제로 쓸 수 있는 첫 버전까지 약 일주일 만에 만들었습니다.',
-            ),
-            l(
-              'Handled the realities of a 10M-user app: backward-compatible API changes (old app versions stay in the wild for months), feature flags to dark-launch risky changes to a percentage of users, and DB migrations during low-traffic windows.',
-              '1,000만 사용자 서비스의 현실적인 제약도 다뤘습니다. 구버전 앱이 몇 달씩 남아 있으니 API는 항상 하위 호환을 지키고, 위험한 변경은 피처 플래그로 일부 사용자에게만 먼저 열고, DB 마이그레이션은 트래픽이 적은 시간대에 진행했습니다.',
+              'My three main areas were integrating third-party ad providers, making the reward payment logic solid with tests, and improving page performance. Each is described below.',
+              '주로 맡은 일은 세 가지였습니다. 서드파티 광고사 연동, 리워드 지급 로직을 테스트로 단단하게 만드는 일, 그리고 페이지 성능 개선입니다. 각각은 아래에 따로 정리했습니다.',
             ),
           ],
           result: [
             l(
-              'Shipped features to millions of users reliably and became the go-to engineer for the reward flow, from frontend to database.',
-              '수백만 사용자에게 기능을 안정적으로 배포했고, 프론트엔드부터 DB까지 리워드 흐름 전반을 가장 잘 아는 엔지니어로 자리 잡았습니다.',
+              'Points are money to users, so the work was less about shipping fast and more about making sure every reward was paid exactly once, to the right person, on a page that loads quickly on a phone.',
+              '사용자에게 포인트는 곧 돈이라서, 빨리 만드는 것보다 모든 리워드가 정확히 한 번, 맞는 사람에게 지급되고, 그 페이지가 폰에서 빠르게 뜨게 하는 데 집중했습니다.',
             ),
           ],
         },
@@ -412,37 +380,45 @@ export const entries: Entry[] = [
       // ── Ad integration ───────────────────────────────────────
       {
         id: 'ad-integration',
-        title: l('Third-party ad API integration across formats', '다양한 포맷의 서드파티 광고 API 연동'),
-        stack: ['JavaScript', 'Ad SDKs', 'REST APIs', 'Idempotency'],
+        title: l('Third-party ad integration and the reward flow', '서드파티 광고 연동과 리워드 지급 흐름'),
+        stack: ['Spring', 'Adapter pattern', 'S2S postback', 'React'],
         detail: {
           context: [
             l(
-              'Missions like "watch a 30-second video and earn points" drive a large share of engagement, and every ad partner (video, banner, interstitial) ships its own SDK with different callbacks, timing rules, and reward-confirmation flow.',
-              '"30초 영상을 보면 포인트 적립" 같은 미션은 서비스 참여도의 큰 부분을 차지합니다. 그런데 광고사마다(영상, 배너, 전면) SDK가 따로 있고 콜백, 노출 타이밍 규칙, 리워드 확인 방식이 전부 달랐습니다.',
+              'Ads were directly tied to revenue: part of what advertisers paid came back to users as points, so the ad pipeline was effectively part of the revenue pipeline.',
+              '광고는 매출과 직접 연결되어 있었습니다. 광고주가 낸 돈의 일부가 사용자에게 포인트로 돌아가는 구조라서, 광고 파이프라인이 사실상 매출 파이프라인의 일부였습니다.',
             ),
             l(
-              'Each partner had been wired in ad hoc, so the same bugs kept coming back per partner: double rewards, or rewards not paid when a user backgrounded the app mid-video.',
-              '광고사별로 따로따로 붙여 놓은 구조라서, 리워드 중복 지급이나 영상 중간에 앱을 백그라운드로 보냈을 때 지급이 안 되는 것 같은 버그가 광고사마다 반복해서 터졌습니다.',
+              'Every ad provider had a different SDK, a different callback structure and a different error format. Wiring each one directly into the business logic would have scattered provider-specific code across the app.',
+              '광고사마다 SDK, 콜백 구조, 에러 형식이 전부 달랐습니다. 이걸 비즈니스 로직에 직접 붙이면 광고사별 코드가 앱 전체에 흩어져서 관리가 안 될 상황이었습니다.',
             ),
           ],
           did: [
             l(
-              'Designed a single ad-adapter interface (load → show → complete → reward) and implemented one adapter per partner behind it, so the mission screen no longer cared which vendor was serving.',
-              '광고 어댑터 인터페이스를 하나로 정의하고(load → show → complete → reward), 광고사마다 그 뒤에서 어댑터를 구현했습니다. 미션 화면은 어느 광고사가 나오는지 신경 쓸 필요가 없어졌습니다.',
+              'How the flow works: when a user opens the event page, the frontend loads the provider’s SDK in an iframe and the provider serves a video. When the video finishes, the provider’s server, not our frontend, tells our Spring backend directly through a server-to-server postback (POST /postback/{vendor}) with the transaction ID, user ID and campaign ID. We treated that postback as the source of truth, because the frontend can be faked.',
+              '흐름은 이렇습니다. 사용자가 이벤트 페이지를 열면 프론트엔드가 광고사 SDK를 iframe으로 띄우고, 광고사가 영상을 내려줍니다. 영상이 끝나면 우리 프론트엔드가 아니라 광고사 서버가 우리 Spring 백엔드에 직접 알려줍니다(서버 간 postback, POST /postback/{vendor}). 트랜잭션 ID, 사용자 ID, 캠페인 ID가 함께 옵니다. 프론트엔드는 조작될 수 있으니 이 postback을 기준으로 삼았습니다.',
             ),
             l(
-              'Handled the edge cases per format: skippable 30s video pays out only on the server-side completion callback, not the client event; banners get viewability timing and refresh throttling; interstitials block double-open and restore state when the user returns.',
-              '포맷별 예외 상황을 정리했습니다. 스킵 가능한 30초 영상은 클라이언트 이벤트가 아니라 서버 측 완료 콜백이 왔을 때만 지급하고, 배너는 노출 시간 측정과 갱신 주기 제한을 두고, 전면 광고는 중복 오픈을 막고 사용자가 돌아왔을 때 상태를 복원하도록 했습니다.',
+              'Used the Adapter pattern: one common AdProvider interface (requestAd, onComplete, onSkip, onError) and one adapter class per provider. Adding a new provider means one adapter and one config entry, with no change to the business logic.',
+              'Adapter 패턴을 썼습니다. 공통 AdProvider 인터페이스(requestAd, onComplete, onSkip, onError)를 정의하고 광고사마다 그걸 구현한 어댑터 클래스를 하나씩 두었습니다. 새 광고사를 붙일 때는 어댑터 하나와 설정 한 줄만 추가하면 되고, 비즈니스 로직은 건드리지 않습니다.',
             ),
             l(
-              'Made reward granting idempotent with a per-impression key, so a retried callback from a vendor could never pay twice.',
-              '리워드 지급을 노출 단위 키로 멱등하게 만들어, 광고사에서 콜백을 재전송해도 두 번 지급되는 일이 없게 했습니다.',
+              'Kept the controller thin: it receives the request, uses the right adapter to turn the provider’s payload into a common PostbackEvent, then checks the sender’s IP against the provider’s allowed ranges, verifies the signature with a shared secret, and checks the campaign status and whether the user is still eligible. Errors are handled in one place with @ControllerAdvice.',
+              '컨트롤러는 얇게 유지했습니다. 요청을 받아 해당 어댑터로 광고사별 데이터를 공통 PostbackEvent로 바꾸고, 보낸 쪽 IP가 광고사의 허용 범위인지, 공유 비밀키로 서명이 맞는지, 캠페인이 유효한지, 사용자가 아직 받을 자격이 있는지를 확인합니다. 에러 처리는 @ControllerAdvice로 한곳에 모았습니다.',
+            ),
+            l(
+              'The reward itself is written inside one database transaction so the reward record and the user’s balance always change together. A unique constraint on (vendor, transaction_id) blocks duplicates: if the same postback arrives twice, the second insert is rejected, we treat it as already processed and still return 200 OK, because providers retry when they don’t get a success response and we don’t want to trigger more retries.',
+              '리워드 지급은 하나의 DB 트랜잭션 안에서 처리해서 리워드 기록과 사용자 잔액이 항상 함께 바뀝니다. (vendor, transaction_id)에 유니크 제약을 걸어 중복을 막았고, 같은 postback이 두 번 오면 두 번째 insert는 DB가 거부합니다. 이때는 "이미 처리됨"으로 보고 200 OK를 돌려줍니다. 광고사는 성공 응답을 못 받으면 재전송하기 때문에, 에러를 돌려주면 재시도만 늘어나기 때문입니다.',
+            ),
+            l(
+              'Kept the handler fast: validation and the reward write happen synchronously, while notifications and analytics are pushed off to run asynchronously with ApplicationEventPublisher and @Async. Meanwhile the frontend shows "Checking your reward..." and polls GET /rewards/status?txId= every few seconds until the backend confirms.',
+              '핸들러는 빠르게 응답하도록 했습니다. 검증과 리워드 기록은 동기로 처리하고, 알림이나 통계 같은 부수 작업은 ApplicationEventPublisher와 @Async로 비동기로 넘겼습니다. 그 사이 프론트엔드는 "리워드 확인 중..."을 보여주면서 GET /rewards/status?txId= 를 몇 초마다 확인하고, 백엔드가 확인해 주면 포인트를 표시합니다.',
             ),
           ],
           result: [
             l(
-              'New ad partners could be added in days instead of weeks, and double-reward and missing-reward tickets in the missions area dropped sharply.',
-              '새 광고사 연동이 몇 주에서 며칠로 줄었고, 미션 영역의 중복 지급·미지급 문의가 크게 감소했습니다.',
+              'Skippable 30-second video, banner and interstitial formats from several providers all run through the same flow, new providers plug in with one adapter, and the same completed ad can never pay a user twice.',
+              '여러 광고사의 스킵 가능한 30초 영상, 배너, 전면 광고가 모두 같은 흐름으로 처리되고, 새 광고사는 어댑터 하나로 붙일 수 있으며, 같은 광고 시청으로 포인트가 두 번 나가는 일이 없습니다.',
             ),
           ],
         },
@@ -451,33 +427,37 @@ export const entries: Entry[] = [
       // ── Quality ──────────────────────────────────────────────
       {
         id: 'quality',
-        title: l('Code reviews and JUnit tests for critical business logic', '핵심 비즈니스 로직에 대한 코드 리뷰와 JUnit 테스트'),
-        stack: ['JUnit', 'Java', 'Spring', 'CI'],
+        title: l('Testing the reward logic with JUnit and Mockito', 'JUnit과 Mockito로 리워드 로직 검증'),
+        stack: ['JUnit', 'Mockito', 'H2', 'Spring'],
         detail: {
           context: [
             l(
-              'The points logic (accrual rules, expiry, partner settlement) was the part of the codebase nobody wanted to touch: little test coverage and lots of business rules buried in long service methods.',
-              '포인트 로직(적립 규칙, 소멸, 파트너 정산)은 아무도 손대고 싶어 하지 않는 영역이었습니다. 테스트가 거의 없었고, 비즈니스 규칙이 긴 서비스 메서드 안에 묻혀 있었습니다.',
+              'The provider could resend the same postback if our server answered slowly or the network hiccupped. The one thing that must never happen is a user getting paid twice for the same ad, so this logic needed tests more than anything else in the app.',
+              '우리 서버 응답이 늦거나 네트워크가 잠깐 끊기면 광고사가 같은 postback을 다시 보낼 수 있습니다. 절대 일어나면 안 되는 건 같은 광고로 포인트가 두 번 나가는 것이었고, 그래서 앱에서 이 로직에 테스트가 가장 필요했습니다.',
             ),
           ],
           did: [
             l(
-              'Introduced a review checklist for the team (points arithmetic, null and timezone handling, transaction boundaries, backward compatibility) and reviewed PRs across the team against it.',
-              '팀 리뷰 체크리스트를 도입했습니다. 포인트 계산, null과 타임존 처리, 트랜잭션 경계, 하위 호환성 같은 항목이고, 이 기준으로 팀 전체의 PR을 리뷰했습니다.',
+              'Wrote unit tests with JUnit and Mockito, mocking the ad provider and database pieces so the reward logic could be tested on its own and the tests stayed fast. The core case: the same transaction ID sent twice must create exactly one reward record and pay the points once.',
+              'JUnit과 Mockito로 단위 테스트를 작성했습니다. 광고사와 DB 관련 부분은 목으로 대체해서 리워드 로직만 따로, 빠르게 테스트할 수 있게 했습니다. 핵심 케이스는 같은 트랜잭션 ID가 두 번 왔을 때 리워드 기록은 하나만 생기고 포인트도 한 번만 지급되는지였습니다.',
             ),
             l(
-              'Wrote JUnit tests around the critical logic: table-driven unit tests for accrual and expiry rules, and Spring integration tests with an embedded DB for the settlement flow that reconciles partner callbacks with issued points.',
-              '핵심 로직에 JUnit 테스트를 작성했습니다. 적립·소멸 규칙은 케이스 표 기반 단위 테스트로, 파트너 콜백과 지급된 포인트를 대조하는 정산 흐름은 내장 DB를 사용한 Spring 통합 테스트로 커버했습니다.',
+              'Covered the business edge cases that should all be rejected: a reward after the campaign budget ran out, a user over their daily limit, a skip signal on a campaign that requires the full video, and an unknown campaign ID.',
+              '거부되어야 하는 비즈니스 예외 상황도 다 넣었습니다. 캠페인 예산이 다 떨어진 뒤의 지급 요청, 하루 한도를 넘긴 사용자, 영상을 끝까지 봐야 하는 캠페인에서 온 스킵 신호, 존재하지 않는 캠페인 ID 같은 것들입니다.',
             ),
             l(
-              'Made the suite part of the CI gate so a failing rule blocks the merge.',
-              '이 테스트를 CI 게이트에 포함시켜, 규칙 하나라도 깨지면 머지가 막히도록 했습니다.',
+              'Added integration tests with an in-memory H2 database and the real Spring context, so the whole path from the incoming web request through the business logic to the saved reward record is exercised.',
+              '인메모리 DB인 H2와 실제 Spring 컨텍스트로 통합 테스트도 작성해서, 웹 요청이 들어와서 비즈니스 로직을 거쳐 리워드 기록이 DB에 저장되는 전체 경로를 검증했습니다.',
+            ),
+            l(
+              'Also reviewed teammates’ code regularly, with the same focus on correctness of point calculations and maintainability.',
+              '팀원들의 코드 리뷰도 꾸준히 했고, 포인트 계산이 정확한지와 유지보수하기 쉬운지를 주로 봤습니다.',
             ),
           ],
           result: [
             l(
-              'Coverage on the core reward module went from near zero to covering every accrual and expiry path, and several regressions were caught in CI instead of by users.',
-              '핵심 리워드 모듈의 테스트 커버리지가 거의 0에서 모든 적립·소멸 경로를 커버하는 수준이 되었고, 여러 회귀 버그를 사용자가 아니라 CI가 먼저 잡아냈습니다.',
+              'Regressions in the reward logic are caught before release rather than by users, and the duplicate-payment case is locked down by both a test and a database constraint.',
+              '리워드 로직의 회귀 버그는 사용자가 아니라 배포 전에 잡히고, 중복 지급은 테스트와 DB 제약 두 겹으로 막혀 있습니다.',
             ),
           ],
         },
@@ -486,33 +466,33 @@ export const entries: Entry[] = [
       // ── Frontend performance ─────────────────────────────────
       {
         id: 'frontend-perf',
-        title: l('Loading time reduced by up to 40%', '로딩 시간 최대 40% 단축'),
-        stack: ['React', 'React Profiler', 'Code splitting', 'Memoization'],
+        title: l('Page loading time reduced by about 40%', '페이지 로딩 시간 약 40% 단축'),
+        stack: ['React', 'Chrome DevTools', 'Lighthouse'],
         detail: {
           context: [
             l(
-              'The main screens loaded slowly on mid-range Android devices: the bundle was large, and the mission list re-rendered every item whenever the user’s points changed.',
-              '중급 안드로이드 기기에서 주요 화면이 느리게 떴습니다. 번들이 컸고, 사용자의 포인트가 바뀔 때마다 미션 목록 전체가 다시 렌더링되고 있었습니다.',
+              'The event page felt slow on phones, and engagement depends on that page loading quickly.',
+              '이벤트 페이지가 폰에서 느리게 느껴졌고, 사용자 참여는 이 페이지가 얼마나 빨리 뜨는지에 크게 좌우됐습니다.',
             ),
           ],
           did: [
             l(
-              'Profiled with Chrome DevTools and React Profiler to find the actual causes: a few heavy components (chart, carousel) loaded eagerly, oversized images, and parent state changes re-rendering hundreds of list items.',
-              'Chrome DevTools와 React Profiler로 실제 원인을 찾았습니다. 차트·캐러셀 같은 무거운 컴포넌트가 처음부터 로드되고, 이미지가 지나치게 크고, 상위 상태가 바뀔 때마다 수백 개의 목록 아이템이 다시 그려지고 있었습니다.',
+              'Measured first: used the Chrome DevTools performance profiler and Lighthouse with mobile throttling to find the actual bottlenecks, looking at when the main content appears and when the page becomes usable.',
+              '먼저 측정했습니다. Chrome DevTools 성능 프로파일러와 Lighthouse를 모바일 속도 제한 상태로 돌려서 실제 병목이 어디인지 찾았고, 주요 콘텐츠가 뜨는 시점과 페이지가 실제로 쓸 수 있게 되는 시점을 봤습니다.',
             ),
             l(
-              'Code-split the heavy components with lazy loading, memoized list items (React.memo / useMemo, shouldComponentUpdate on legacy class components) so they render only when their own data changes, and moved polling-driven updates out of top-level state.',
-              '무거운 컴포넌트는 코드 스플리팅으로 필요할 때만 불러오고, 목록 아이템은 메모이제이션(React.memo / useMemo, 레거시 클래스 컴포넌트는 shouldComponentUpdate)으로 자기 데이터가 바뀔 때만 렌더링되게 했습니다. 폴링으로 갱신되는 값은 최상위 상태에서 분리했습니다.',
+              'The biggest issue was that the ad SDK scripts were loaded synchronously at page load even though the ad wasn’t visible yet. Changed it to load the SDK only when the ad container gets close to the viewport, which alone cut more than a second off the initial load.',
+              '가장 큰 문제는 광고 SDK 스크립트가 아직 광고가 보이지도 않는데 페이지 로드 시점에 동기로 로드되는 것이었습니다. 광고 영역이 화면에 가까워질 때만 SDK를 불러오도록 바꿨고, 이것만으로 초기 로딩이 1초 이상 줄었습니다.',
             ),
             l(
-              'Compressed and lazy-loaded below-the-fold images and cached static API responses on the client.',
-              '화면 아래쪽 이미지는 압축하고 지연 로딩했으며, 자주 바뀌지 않는 API 응답은 클라이언트에서 캐싱했습니다.',
+              'Removed unnecessary re-renders and repeated requests. For example, the reward status was being fetched again on every re-render, so I cached the result instead of asking the server the same thing repeatedly.',
+              '불필요한 리렌더링과 반복 요청도 정리했습니다. 예를 들어 리워드 상태를 리렌더링마다 다시 요청하고 있어서, 결과를 캐싱해서 같은 요청을 반복하지 않게 했습니다.',
             ),
           ],
           result: [
             l(
-              'Initial loading time dropped by up to 40% on the target devices, and the mission list stayed smooth while points updated in the background.',
-              '대상 기기에서 초기 로딩 시간이 최대 40% 줄었고, 포인트가 백그라운드에서 갱신되는 동안에도 미션 목록이 끊기지 않게 되었습니다.',
+              'Loading time dropped by about 40%, and the page feels noticeably more responsive on mobile.',
+              '로딩 시간이 약 40% 줄었고, 특히 모바일에서 페이지가 눈에 띄게 빨라졌습니다.',
             ),
           ],
         },
@@ -521,34 +501,23 @@ export const entries: Entry[] = [
       // ── Design collaboration ─────────────────────────────────
       {
         id: 'design-collab',
-        title: l('UX/UI collaboration with the design team, 30% more mobile traffic', '디자인팀과의 UX/UI 협업으로 모바일 트래픽 30% 증가'),
-        stack: ['React', 'Design system', 'Component library'],
+        title: l('Working with the design team on UX/UI', '디자인팀과의 UX/UI 협업'),
+        stack: ['React', 'Design handoff'],
         detail: {
           context: [
             l(
-              'Design handoffs arrived as finished mockups, engineering approximated them, and the mismatch surfaced at QA, so screens shipped late or looked different from what was designed.',
-              '디자인은 완성된 목업으로 넘어오고, 개발은 그걸 "비슷하게" 구현하고, 차이는 QA에서 드러나는 구조였습니다. 그래서 화면이 늦게 나가거나 디자인과 다르게 나갔습니다.',
+              'Event and reward screens are where users spend most of their time, so how faithfully the designs were implemented had a direct effect on whether people came back.',
+              '이벤트와 리워드 화면은 사용자가 가장 오래 머무는 곳이라서, 디자인이 얼마나 의도대로 구현되는지가 사용자가 다시 오는지에 직접 영향을 줬습니다.',
             ),
           ],
           did: [
             l(
-              'Set up a weekly sync with the design team and joined design reviews early, flagging technical constraints (animation cost on low-end devices, data not yet available at that point in the flow) while designs were still cheap to change.',
-              '디자인팀과 주간 싱크를 만들고 디자인 리뷰에 초기부터 참여했습니다. 저사양 기기에서의 애니메이션 비용이나 그 시점에는 아직 없는 데이터 같은 기술적 제약을, 디자인을 바꾸는 비용이 아직 낮을 때 미리 공유했습니다.',
-            ),
-            l(
-              'Built a small shared component library (buttons, cards, spacing tokens) matching the design system so new screens matched the mockups by default instead of by hand.',
-              '버튼, 카드, 간격 토큰 등 디자인 시스템에 맞춘 작은 공용 컴포넌트 라이브러리를 만들어, 새 화면이 손으로 맞추지 않아도 기본적으로 목업과 일치하도록 했습니다.',
-            ),
-            l(
-              'Owned the redesign of the mission and reward screens end to end with the designers, iterating on real devices.',
-              '미션·리워드 화면 리디자인을 디자이너와 함께 처음부터 끝까지 맡아, 실제 기기에서 확인하며 다듬었습니다.',
+              'Coordinated directly with the design team while implementing the screens, checking details on real devices together instead of approximating the mockups and fixing differences later.',
+              '화면을 구현하면서 디자인팀과 직접 소통했습니다. 목업을 대충 비슷하게 만들고 나중에 차이를 고치는 대신, 실제 기기에서 함께 세부를 확인하며 맞췄습니다.',
             ),
           ],
           result: [
-            l(
-              'Mobile user traffic increased by 30% after the redesigned screens shipped, and design-to-QA back-and-forth dropped noticeably.',
-              '리디자인된 화면이 배포된 뒤 모바일 사용자 트래픽이 30% 증가했고, 디자인과 QA 사이를 오가는 수정 요청도 눈에 띄게 줄었습니다.',
-            ),
+            l('Mobile user traffic increased by 30% after the redesigned screens shipped.', '리디자인된 화면이 배포된 뒤 모바일 사용자 트래픽이 30% 증가했습니다.'),
           ],
         },
       },
@@ -571,47 +540,43 @@ export const entries: Entry[] = [
     tags: [
       l('On-site Requirements Discovery', '현장 요구사항 발굴'),
       l('Legacy Migration → Production', '레거시 마이그레이션 → 프로덕션'),
-      l('Data Pipelines · Quality · Lineage', '데이터 파이프라인 · 품질 · 계보'),
+      l('Retail & Logistics Systems', '리테일 & 물류 시스템'),
     ],
     summary: l(
-      'Worked on-site with Samsonite Korea (500+ stores), extracting requirements from store and warehouse staff, making scoping calls, migrating a PDA .NET system to Node.js microservices, and building the data pipelines that connect ERP, POS, and warehouse data with quality checks, lineage, and row/column-level permissions.',
-      '쌤소나이트 코리아(500여 개 매장) 현장에서 일했습니다. 매장과 창고 직원들에게서 직접 요구사항을 끌어내고 범위를 정했으며, PDA .NET 시스템을 Node.js 마이크로서비스로 옮기고, ERP·POS·물류 데이터를 품질 검증, 계보 추적, 행·열 단위 권한과 함께 연결하는 데이터 파이프라인을 만들었습니다.',
+      'My first company. Developed and maintained the Samsonite EPOS and warehouse systems for 500+ stores on Spring Boot, visited the warehouses to fix the scanning workflow, helped move a PDA .NET system to a Node.js web app, and kept the HQ dashboards fast.',
+      '첫 회사입니다. 쌤소나이트 500여 개 매장의 EPOS와 창고 시스템을 Spring Boot로 개발·운영했고, 창고를 직접 방문해 스캔 작업을 고치고, PDA .NET 시스템을 Node.js 웹 앱으로 옮기는 일을 맡았으며, 본사 대시보드를 빠르게 유지했습니다.',
     ),
     stories: [
       // ── EPOS ─────────────────────────────────────────────────
       {
         id: 'epos',
-        title: l('Samsonite EPOS web system for 500+ stores', '전국 500여 개 매장의 쌤소나이트 EPOS 웹 시스템'),
-        stack: ['Spring Boot', 'MSSQL', 'On-site support'],
+        title: l('Samsonite EPOS system for 500+ stores', '쌤소나이트 EPOS 시스템, 전국 500여 개 매장'),
+        stack: ['Spring Boot', 'MSSQL', 'Batch'],
         detail: {
           context: [
             l(
-              'Nexol System builds and operates the EPOS (point-of-sale) and logistics systems for Samsonite Korea, 500+ department-store and outlet locations. If EPOS is down, a store cannot ring up a sale.',
-              '넥솔시스템은 쌤소나이트 코리아의 EPOS(판매 시점 관리)와 물류 시스템을 개발·운영하는 회사입니다. 백화점과 아울렛을 합쳐 500여 개 매장이 이 시스템으로 판매하고, EPOS가 멈추면 매장은 결제를 받을 수 없습니다.',
-            ),
-            l(
-              'I was the engineer closest to the customer: requirements came from Samsonite’s retail and logistics teams as business problems, not specs, and I turned them into working features.',
-              '저는 고객사와 가장 가까이에서 일하는 엔지니어였습니다. 요구사항은 쌤소나이트 리테일·물류 팀에서 명세가 아닌 "업무 문제"의 형태로 들어왔고, 그걸 동작하는 기능으로 바꾸는 일이 제 역할이었습니다.',
+              'Nexol System builds and runs the retail and logistics systems for Samsonite Korea, including the EPOS (point-of-sale) system used in 500+ stores and the warehouse management system. I developed and maintained both, on Spring Boot.',
+              '넥솔시스템은 쌤소나이트 코리아의 리테일·물류 시스템을 개발하고 운영하는 회사입니다. 전국 500여 개 매장에서 쓰는 EPOS(판매 시점 관리)와 창고 관리 시스템이 여기 포함되고, 저는 둘 다 Spring Boot 기반으로 개발·운영했습니다.',
             ),
           ],
           did: [
             l(
-              'Maintained and extended the Spring Boot / MSSQL EPOS backend: sales and returns, promotion and coupon rules, store inventory lookups, and daily settlement and closing.',
-              'Spring Boot / MSSQL 기반 EPOS 백엔드를 운영하고 확장했습니다. 판매·반품, 프로모션과 쿠폰 규칙, 매장 재고 조회, 일일 정산과 마감 처리가 주요 영역이었습니다.',
+              'On the maintenance side, the nightly closing batch was the critical piece. Every night the transactions from all 500 stores are aggregated and sent to headquarters, and when that failed, HQ had no sales report in the morning. A common cause was a store losing its network during the day, so its transactions arrived late or not at all.',
+              '운영 쪽에서 가장 중요한 건 야간 마감 배치였습니다. 매일 밤 500개 매장의 거래를 모아서 본사로 보내는데, 이게 실패하면 본사는 아침에 매출 리포트를 볼 수 없습니다. 흔한 원인은 매장이 낮에 네트워크가 끊겨서 거래가 늦게 오거나 아예 안 오는 경우였습니다.',
             ),
             l(
-              'Sat in requirement meetings with Samsonite stakeholders and made the scoping calls: which part of a request was a real need, which could be covered by an existing feature, and what to push to a later phase. Then I explained the trade-offs to store managers and merchandisers in their terms, not ours.',
-              '쌤소나이트 담당자들과의 요구사항 회의에 직접 참여해 범위를 정했습니다. 요청 중 무엇이 진짜 필요한 것인지, 무엇은 기존 기능으로 해결되는지, 무엇은 다음 단계로 미룰지를 판단하고, 그 이유를 매장 관리자와 MD가 이해할 수 있는 말로 설명했습니다.',
+              'Improved the retry and re-processing logic so late transactions are picked up automatically in the next run, instead of someone manually re-running the batch at 7 a.m.',
+              '재시도와 재처리 로직을 고쳐서, 늦게 도착한 거래를 다음 실행에서 자동으로 반영하도록 했습니다. 누군가 아침 7시에 배치를 손으로 다시 돌리는 일이 없어졌습니다.',
             ),
             l(
-              'Handled store-facing incidents end to end (reading logs, reproducing with real store data, shipping hotfixes), which taught me how staff actually used the system versus how it was designed.',
-              '매장에서 올라오는 장애도 처음부터 끝까지 처리했습니다. 로그를 읽고, 실제 매장 데이터로 재현하고, 핫픽스를 배포하는 과정에서 시스템이 설계된 방식과 직원들이 실제로 쓰는 방식이 어떻게 다른지 배웠습니다.',
+              'On the development side, built the sales dashboard screens for headquarters. Those dashboard queries turned out to be the slow ones I later fixed in the performance work below.',
+              '개발 쪽에서는 본사용 매출 대시보드 화면을 만들었습니다. 이 대시보드의 쿼리가 나중에 느려져서, 아래의 성능 개선 작업으로 이어졌습니다.',
             ),
           ],
           result: [
             l(
-              'Kept a nationwide POS system stable through peak seasons while continuously shipping the features the retail team asked for.',
-              '성수기에도 전국 POS 시스템을 안정적으로 유지하면서, 리테일 팀이 요청한 기능을 꾸준히 배포했습니다.',
+              'Headquarters got its morning sales report reliably, and the dashboard became the main way they looked at store performance.',
+              '본사가 아침 매출 리포트를 안정적으로 받게 되었고, 대시보드는 본사가 매장 실적을 보는 기본 창구가 되었습니다.',
             ),
           ],
         },
@@ -620,33 +585,29 @@ export const entries: Entry[] = [
       // ── On-site discovery ────────────────────────────────────
       {
         id: 'onsite-discovery',
-        title: l('Warehouse visits → single-scan automation', '물류창고 방문 → 싱글 스캔 자동화'),
-        stack: ['Node.js', 'PDA / barcode scanning', 'ERP integration'],
+        title: l('Warehouse visits and single-scan automation', '물류창고 방문과 싱글 스캔 자동화'),
+        stack: ['Node.js', 'PDA / barcode scanning'],
         detail: {
           context: [
             l(
-              'The warehouse team kept reporting that "the PDA is slow", but the tickets never pointed at anything specific in the code, and nothing was measurably slow on our side.',
-              '물류창고 팀에서는 계속 "PDA가 느리다"고 했지만, 티켓에는 코드에서 짚을 만한 내용이 없었습니다. 저희 쪽 측정으로는 느린 게 없었거든요.',
+              'Visited the Samsonite logistics warehouses to see how the inbound and outbound scanning actually worked, rather than going by what the tickets said.',
+              '티켓에 적힌 내용만 보지 않고, 쌤소나이트 물류창고에 직접 가서 입출고 스캔 작업이 실제로 어떻게 돌아가는지 봤습니다.',
             ),
           ],
           did: [
             l(
-              'Went to the Samsonite logistics warehouses and shadowed operators through a full inbound/outbound shift instead of asking for more tickets.',
-              '티켓을 더 달라고 하는 대신 쌤소나이트 물류창고에 직접 가서, 작업자들의 입출고 근무 한 교대를 처음부터 끝까지 따라다녔습니다.',
+              'Found that for every item, a worker scanned the barcode, then searched for the product manually, found the matching row, and updated the quantity and status by hand. Several steps for something that should be one.',
+              '작업자가 상품마다 바코드를 찍은 뒤, 상품을 직접 검색해서 해당 행을 찾고, 수량과 상태를 손으로 바꾸고 있었습니다. 한 번에 끝나야 할 일이 여러 단계로 쪼개져 있었습니다.',
             ),
             l(
-              'Found the real problem: for each carton, workers scanned the box barcode, then every item barcode, then confirmed a popup: three or more actions per unit, thousands of times a day. The software wasn’t slow; the workflow was.',
-              '진짜 문제가 보였습니다. 상자 하나마다 박스 바코드를 찍고, 안의 개별 상품 바코드를 전부 찍고, 팝업을 확인하는 식으로 단위당 세 번 이상의 동작을 하루에 수천 번 반복하고 있었습니다. 느린 건 소프트웨어가 아니라 업무 흐름이었습니다.',
-            ),
-            l(
-              'Proposed a single-scan flow and defended it to the logistics manager, who worried about losing per-item verification: scan the carton once, the Node.js service resolves its packing list from the ERP, pre-fills the items, and asks for confirmation only on discrepancies, with audio and color feedback because operators don’t watch the screen.',
-              '싱글 스캔 방식을 제안하고, 개별 검수가 빠질까 걱정하는 물류 관리자를 설득했습니다. 상자를 한 번만 찍으면 Node.js 서비스가 ERP에서 포장 명세를 가져와 상품을 자동으로 채우고, 명세와 다를 때만 확인을 요구하는 방식입니다. 작업자들이 화면을 보지 않기 때문에 불일치는 소리와 색으로 알려주도록 했습니다.',
+              'Built a Node.js-based single-scan flow: once the barcode is scanned, the system identifies the product and updates the inventory record itself, so the worker only confirms when something doesn’t match.',
+              'Node.js 기반의 싱글 스캔 흐름을 만들었습니다. 바코드를 찍으면 시스템이 상품을 알아서 찾아 재고 기록을 바로 갱신하고, 작업자는 뭔가 안 맞을 때만 확인하면 됩니다.',
             ),
           ],
           result: [
             l(
-              'Processing per carton dropped from several scans to one, and operators adopted it immediately because it was built around how they actually worked.',
-              '상자당 처리가 여러 번의 스캔에서 한 번으로 줄었고, 실제 작업 방식에 맞춰 만들었기 때문에 작업자들이 바로 받아들였습니다.',
+              'The number of manual steps per inbound and outbound operation dropped, and the change came from watching the work rather than from a feature request.',
+              '입출고 작업마다 필요한 수작업 단계가 줄었습니다. 그리고 이 개선은 기능 요청이 아니라 현장에서 일하는 모습을 직접 본 데서 나왔습니다.',
             ),
           ],
         },
@@ -655,72 +616,29 @@ export const entries: Entry[] = [
       // ── Legacy migration ─────────────────────────────────────
       {
         id: 'legacy-migration',
-        title: l('PDA .NET logistics system → Node.js microservices', 'PDA 기반 .NET 물류 시스템 → Node.js 마이크로서비스'),
-        stack: ['Node.js', 'Microservices', 'Docker', '.NET (legacy)'],
+        title: l('PDA .NET logistics system to a Node.js web application', 'PDA 기반 .NET 물류 시스템을 Node.js 웹 애플리케이션으로'),
+        stack: ['Node.js', 'Microservices', '.NET (legacy)'],
         detail: {
           context: [
             l(
-              'The logistics system was a Windows PDA app on .NET: every change meant reinstalling on each device, nobody left on the team knew the codebase well, and it crashed often during peak inbound.',
-              '물류 시스템은 .NET으로 만든 윈도우 PDA 앱이었습니다. 무언가 바꾸려면 기기마다 다시 설치해야 했고, 코드베이스를 잘 아는 사람이 팀에 남아 있지 않았으며, 입고가 몰리는 시간에 자주 죽었습니다.',
+              'The logistics system was a .NET application installed on each PDA device. Every update had to be distributed to every device, so shipping a fix was slow and production issues took a long time to resolve.',
+              '물류 시스템은 PDA 기기마다 설치되는 .NET 애플리케이션이었습니다. 업데이트할 때마다 모든 기기에 배포해야 해서 수정 하나 내보내는 데 시간이 오래 걸렸고, 운영 이슈 대응도 느렸습니다.',
             ),
           ],
           did: [
             l(
-              'Migrated it to a Node.js web application that runs in the PDA browser, split into microservices by domain: receiving, shipping, inventory, and label printing.',
-              'PDA 브라우저에서 동작하는 Node.js 웹 애플리케이션으로 마이그레이션하고, 입고·출고·재고·라벨 출력 도메인별로 마이크로서비스를 나눴습니다.',
+              'Helped migrate it to a Node.js web application, split into services by area, that runs in the PDA browser. Updates are now deployed once on the server and every device gets the latest version the next time it opens the app.',
+              'PDA 브라우저에서 동작하는 Node.js 웹 애플리케이션으로 옮기는 작업을 맡았고, 기능 영역별로 서비스를 나눴습니다. 이제 서버에 한 번 배포하면 모든 기기가 다음에 앱을 열 때 최신 버전을 쓰게 됩니다.',
             ),
             l(
-              'Ran old and new systems in parallel per warehouse zone, comparing outputs daily before cutting each zone over, and kept the .NET system as a fallback until the last zone was stable.',
-              '창고 구역별로 기존 시스템과 새 시스템을 나란히 운영하며 매일 결과를 비교한 뒤 구역 하나씩 전환했고, 마지막 구역이 안정될 때까지 .NET 시스템을 대비책으로 남겨 두었습니다.',
-            ),
-            l(
-              'Owned deployment and operations afterward: Dockerized services, health checks, centralized logging, and on-call.',
-              '전환 뒤에는 배포와 운영을 직접 맡았습니다. 서비스를 Docker로 패키징하고, 헬스 체크와 중앙 로깅을 붙이고, 장애 대응도 담당했습니다.',
+              'Owned deployment and operations of the new system afterward.',
+              '전환 이후 새 시스템의 배포와 운영을 직접 맡았습니다.',
             ),
           ],
           result: [
             l(
-              'Application downtime decreased by 30%, updates went from per-device reinstalls to a single server deploy, and new features could be added to one service without touching the others.',
-              '애플리케이션 다운타임이 30% 줄었고, 업데이트가 기기별 재설치에서 서버 배포 한 번으로 바뀌었으며, 다른 서비스를 건드리지 않고 한 서비스에만 기능을 추가할 수 있게 되었습니다.',
-            ),
-          ],
-        },
-      },
-
-      // ── Data pipelines ───────────────────────────────────────
-      {
-        id: 'data-pipelines',
-        title: l('Data pipelines connecting ERP, POS, and warehouse systems', 'ERP · POS · 물류 시스템을 연결하는 데이터 파이프라인'),
-        stack: ['SQL', 'Node.js batch', 'SAP ERP', 'Data quality', 'Row/column-level access'],
-        detail: {
-          context: [
-            l(
-              'Samsonite’s data lived in separate systems: the SAP ERP (product master, purchase orders), the EPOS database (sales, returns, store inventory), the warehouse system (inbound/outbound), and Excel files from department stores for settlement. They disagreed with each other often enough that HQ did not trust the reports.',
-              '쌤소나이트의 데이터는 여러 시스템에 흩어져 있었습니다. SAP ERP(상품 마스터, 발주), EPOS DB(판매·반품·매장 재고), 물류 시스템(입출고), 그리고 백화점에서 정산용으로 보내는 엑셀 파일까지요. 이 데이터가 서로 안 맞는 일이 잦아서 본사가 리포트를 믿지 못하는 상황이었습니다.',
-            ),
-          ],
-          did: [
-            l(
-              'Built the nightly batch pipelines (SQL + Node.js jobs) that pull from each source (ERP interface tables, the EPOS DB, warehouse events, and parsed department-store files) into a shared reporting schema.',
-              '각 소스에서 데이터를 가져오는 야간 배치 파이프라인(SQL + Node.js 잡)을 만들었습니다. ERP 인터페이스 테이블, EPOS DB, 물류 이벤트, 파싱한 백화점 파일을 하나의 리포팅 스키마로 모았습니다.',
-            ),
-            l(
-              'Put quality checks at every hop: row counts and sums reconciled against the source, SKUs validated against the ERP master, and a quarantine table for records that failed, so bad rows were surfaced instead of silently loaded.',
-              '단계마다 품질 검증을 넣었습니다. 행 수와 합계를 소스와 대조하고, SKU를 ERP 마스터와 검증하고, 실패한 레코드는 격리 테이블로 보내서 잘못된 데이터가 조용히 들어가는 대신 드러나게 했습니다.',
-            ),
-            l(
-              'Tracked lineage: every reporting row carries its source system, batch ID, and load time, so when a number looked wrong, we could trace it back to the exact file or table it came from.',
-              '데이터의 출처도 추적했습니다. 리포팅 테이블의 모든 행에 소스 시스템, 배치 ID, 적재 시각을 남겨서, 숫자가 이상하면 어느 파일이나 테이블에서 온 것인지 바로 되짚을 수 있게 했습니다.',
-            ),
-            l(
-              'Implemented row- and column-level permissions on the reporting layer: a store manager sees only their store’s rows, regional managers see their region, and cost and margin columns are visible only to HQ roles.',
-              '리포팅 계층에 행·열 단위 권한을 적용했습니다. 매장 관리자는 자기 매장 데이터만, 지역 관리자는 담당 지역만 볼 수 있고, 원가와 마진 컬럼은 본사 권한에서만 보이도록 했습니다.',
-            ),
-          ],
-          result: [
-            l(
-              'HQ, regions, and stores started working from the same numbers, reconciliation issues were caught the morning after instead of at month-end, and sensitive margin data stayed limited to the people who should see it.',
-              '본사, 지역, 매장이 같은 숫자를 보고 일하게 되었고, 데이터 불일치는 월말이 아니라 다음 날 아침에 잡히게 되었으며, 민감한 마진 데이터는 봐야 할 사람에게만 열리게 되었습니다.',
+              'Rolling out bug fixes and responding to production issues became much faster, and application downtime decreased by 30%.',
+              '버그 수정 배포와 운영 이슈 대응이 훨씬 빨라졌고, 애플리케이션 다운타임이 30% 줄었습니다.',
             ),
           ],
         },
@@ -729,34 +647,31 @@ export const entries: Entry[] = [
       // ── DB performance ───────────────────────────────────────
       {
         id: 'db-performance',
-        title: l('Query performance under high traffic, 20% faster', '고트래픽 환경의 쿼리 응답 시간 20% 단축'),
-        stack: ['MSSQL', 'Execution plans', 'Indexing', 'Caching'],
+        title: l('Faster dashboard queries under heavy traffic, 20% lower response time', '트래픽이 몰릴 때의 대시보드 쿼리 개선, 응답 시간 20% 단축'),
+        stack: ['MSSQL', 'Indexing', 'Caching'],
         detail: {
           context: [
             l(
-              'Store managers ran sales and inventory reports at the same times every day, opening and closing, and with 500+ stores hitting the same MSSQL tables, report queries slowed to tens of seconds at peak.',
-              '매장 관리자들은 매일 같은 시간, 즉 오픈과 마감 때 판매·재고 리포트를 조회합니다. 500여 개 매장이 동시에 같은 MSSQL 테이블을 두드리니, 피크 시간에는 리포트 쿼리가 수십 초까지 느려졌습니다.',
+              'The headquarters sales dashboard aggregated data across 500+ stores, and when many people opened it at once the queries slowed down noticeably.',
+              '본사 매출 대시보드는 500여 개 매장의 데이터를 집계하는데, 여러 사람이 동시에 열면 쿼리가 눈에 띄게 느려졌습니다.',
             ),
           ],
           did: [
             l(
-              'Captured the slow queries with SQL Server Query Store and execution plans, and ranked them by total cost rather than by who complained loudest.',
-              'SQL Server Query Store와 실행 계획으로 느린 쿼리를 수집하고, 누가 가장 크게 불평했는지가 아니라 전체 비용 기준으로 우선순위를 매겼습니다.',
+              'Added covering indexes for the queries the dashboard ran most, so they could be answered from the index without touching the full table.',
+              '대시보드가 가장 자주 실행하는 쿼리에 커버링 인덱스를 추가해서, 테이블 전체를 읽지 않고 인덱스만으로 답할 수 있게 했습니다.',
             ),
             l(
-              'Added covering indexes for the hottest report queries, rewrote a few that used row-by-row functions, and introduced a nightly pre-aggregation table for daily sales by store so reports read summaries instead of scanning raw transactions.',
-              '가장 자주 호출되는 리포트 쿼리에 커버링 인덱스를 추가하고, 행 단위 함수를 쓰던 쿼리 몇 개를 다시 작성했으며, 매장별 일별 매출을 야간에 미리 집계하는 테이블을 만들어 리포트가 원본 트랜잭션을 스캔하지 않고 요약을 읽도록 했습니다.',
+              'Built pre-aggregated summary tables, filled ahead of time, so the dashboard reads totals that are already computed instead of summing raw transactions on every request.',
+              '미리 집계해 둔 요약 테이블을 만들어서, 요청마다 원본 거래를 다 더하는 대신 이미 계산된 합계를 읽도록 했습니다.',
             ),
             l(
-              'Added a short-TTL cache for reference data (product master, store master) that every request had been re-reading from the database.',
-              '요청마다 DB에서 다시 읽고 있던 참조 데이터(상품 마스터, 매장 마스터)에는 짧은 TTL의 캐시를 두었습니다.',
+              'Cached results that rarely change so repeated requests didn’t hit the database again.',
+              '자주 바뀌지 않는 결과는 캐싱해서 반복 요청이 DB까지 가지 않게 했습니다.',
             ),
           ],
           result: [
-            l(
-              'Response times decreased by 20% overall, with the worst peak-time reports improving the most, and performance stayed stable through peak hours.',
-              '전체 응답 시간이 20% 줄었고, 특히 피크 시간에 가장 느렸던 리포트가 가장 크게 개선되어 성수기에도 성능이 안정적으로 유지되었습니다.',
-            ),
+            l('Response times decreased by 20% and stayed stable when traffic peaked.', '응답 시간이 20% 줄었고, 트래픽이 몰릴 때도 안정적으로 유지되었습니다.'),
           ],
         },
       },
@@ -764,29 +679,29 @@ export const entries: Entry[] = [
       // ── Regression tests ─────────────────────────────────────
       {
         id: 'regression-tests',
-        title: l('Regression testing for 300K+ transactions a year', '연 30만 건 이상 트랜잭션을 지키는 회귀 테스트'),
-        stack: ['Postman', 'Spring Boot', 'JSON Schema', 'CI'],
+        title: l('Regression tests in Postman for 300K+ transactions a year', '연 30만 건 이상 거래를 지키는 Postman 회귀 테스트'),
+        stack: ['Postman', 'Spring Boot', 'JSON'],
         detail: {
           context: [
             l(
-              'After the microservice migration, a single transaction passed through several services, and one field renamed or typed differently in one service could silently corrupt data downstream, quantities landing in the wrong field, for instance.',
-              '마이크로서비스로 전환한 뒤에는 트랜잭션 하나가 여러 서비스를 거치게 되었습니다. 한 서비스에서 필드 이름이나 타입이 하나만 바뀌어도 뒤쪽 데이터가 조용히 오염될 수 있었습니다. 예를 들어 수량이 엉뚱한 필드에 들어가는 식으로요.',
+              'Before big promotions like Black Friday or Christmas, discount and sales logic changed often, and a small change in an API or a data format could quietly break something that used to work.',
+              '블랙프라이데이나 크리스마스 같은 큰 프로모션 전에는 할인과 판매 로직이 자주 바뀌었고, API나 데이터 형식이 조금만 달라져도 잘 되던 기능이 조용히 깨질 수 있었습니다.',
             ),
           ],
           did: [
             l(
-              'Built a Postman regression suite (10+ scenarios) covering the main flows end to end (receive, ship, return, adjust) with schema and field-level assertions on every JSON request and response between the Spring Boot services.',
-              '입고·출고·반품·조정 같은 주요 흐름을 처음부터 끝까지 커버하는 Postman 회귀 테스트(10개 이상 시나리오)를 만들었습니다. Spring Boot 서비스 간의 모든 JSON 요청·응답에 스키마 검증과 필드 단위 검증을 넣었습니다.',
+              'Built and ran a set of 10+ regression tests in Postman against the Spring Boot services, checking the JSON request and response of each API so that a renamed or missing field would be caught before release.',
+              'Spring Boot 서비스를 대상으로 Postman 회귀 테스트 10개 이상을 만들어 실행했습니다. 각 API의 JSON 요청과 응답을 검증해서, 필드 이름이 바뀌거나 빠진 경우를 배포 전에 잡아냈습니다.',
             ),
             l(
-              'Ran it as a CI step against staging on every deploy and after every schema change.',
-              '이 테스트를 CI 단계로 넣어 배포마다, 그리고 스키마가 바뀔 때마다 스테이징 환경에서 실행했습니다.',
+              'Ran the set whenever business logic or an API changed, especially in the run-up to major campaigns.',
+              '비즈니스 로직이나 API가 바뀔 때마다, 특히 큰 캠페인 직전에 이 테스트를 돌렸습니다.',
             ),
           ],
           result: [
             l(
-              'Prevented field-level mismatches from reaching production and ensured accurate processing for 300K+ transactions annually.',
-              '필드 단위 불일치가 프로덕션에 도달하는 것을 막고, 연 30만 건 이상의 트랜잭션이 정확하게 처리되도록 했습니다.',
+              'Prevented field-level data mismatches from reaching production and kept 300K+ transactions a year processing correctly.',
+              '필드 단위 데이터 불일치가 프로덕션까지 가는 것을 막고, 연 30만 건 이상의 거래가 정확하게 처리되도록 했습니다.',
             ),
           ],
         },
