@@ -33,6 +33,20 @@ export function LangProvider({ children }: { children: ReactNode }) {
   return <LangContext.Provider value={{ lang, setLang, t, tl }}>{children}</LangContext.Provider>
 }
 
+/** 영어 문장 아래에 한글 번역을 함께 표시 */
+export function Bi({ s, className = '' }: { s: L; className?: string }) {
+  return (
+    <span className={`bi ${className}`}>
+      <span className="bi__en">{s.en}</span>
+      {s.ko && s.ko !== s.en && (
+        <span className="bi__ko" lang="ko">
+          {s.ko}
+        </span>
+      )}
+    </span>
+  )
+}
+
 export function useLang() {
   const ctx = useContext(LangContext)
   if (!ctx) throw new Error('useLang must be used inside <LangProvider>')

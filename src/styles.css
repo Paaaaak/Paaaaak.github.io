@@ -45,6 +45,19 @@ ul, ol { margin: 0; padding: 0; }
 .kicker--accent { color: var(--accent); }
 .flag { font-size: 1.1em; line-height: 1; vertical-align: -1px; }
 
+/* 영어 + 아래 한글 병기 */
+.bi { display: block; }
+.bi__en { display: block; }
+.bi__ko {
+  display: block; margin-top: 4px;
+  font-family: 'Inter', 'Pretendard Variable', Pretendard, system-ui, -apple-system, sans-serif;
+  font-size: .9em; line-height: 1.6; color: var(--muted);
+  word-break: keep-all; overflow-wrap: anywhere; letter-spacing: 0;
+}
+.sstory__title .bi__ko { font-size: 15px; font-weight: 500; margin-top: 6px; letter-spacing: 0; }
+.sheet__summary .bi__ko { color: rgba(255,255,255,.72); }
+.case__note .bi__ko { font-size: 13px; }
+
 /* Korean */
 :lang(ko) body { font-family: 'Inter', 'Pretendard Variable', Pretendard, system-ui, -apple-system, sans-serif; }
 :lang(ko) h1, :lang(ko) h2, :lang(ko) h3, :lang(ko) h4, :lang(ko) p, :lang(ko) li, :lang(ko) span { word-break: keep-all; overflow-wrap: anywhere; }
