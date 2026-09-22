@@ -387,40 +387,28 @@ export const entries: Entry[] = [
         detail: {
           context: [
             l(
-              'Ads were directly tied to revenue: part of what advertisers paid came back to users as points, so the ad pipeline was effectively part of the revenue pipeline.',
-              '광고는 매출과 직접 연결되어 있었습니다. 광고주가 낸 돈의 일부가 사용자에게 포인트로 돌아가는 구조라서, 광고 파이프라인이 사실상 매출 파이프라인의 일부였습니다.',
-            ),
-            l(
-              'Every ad provider had a different SDK, a different callback structure and a different error format. Wiring each one directly into the business logic would have scattered provider-specific code across the app.',
-              '광고사마다 SDK, 콜백 구조, 에러 형식이 전부 달랐습니다. 이걸 비즈니스 로직에 직접 붙이면 광고사별 코드가 앱 전체에 흩어져서 관리가 안 될 상황이었습니다.',
+              'Ads were tied directly to revenue, since part of what advertisers paid came back to users as points. Every provider had a different SDK, callback structure and error format, so wiring each one straight into the business logic would have scattered provider-specific code across the app.',
+              '광고는 매출과 직접 연결되어 있었습니다. 광고주가 낸 돈의 일부가 사용자에게 포인트로 돌아가는 구조였으니까요. 그런데 광고사마다 SDK, 콜백 구조, 에러 형식이 전부 달라서, 비즈니스 로직에 직접 붙이면 광고사별 코드가 앱 전체에 흩어질 상황이었습니다.',
             ),
           ],
           did: [
             l(
-              'How the flow works: when a user opens the event page, the frontend loads the provider’s SDK in an iframe and the provider serves a video. When the video finishes, the provider’s server, not our frontend, tells our Spring backend directly through a server-to-server postback (POST /postback/{vendor}) with the transaction ID, user ID and campaign ID. We treated that postback as the source of truth, because the frontend can be faked.',
-              '흐름은 이렇습니다. 사용자가 이벤트 페이지를 열면 프론트엔드가 광고사 SDK를 iframe으로 띄우고, 광고사가 영상을 내려줍니다. 영상이 끝나면 우리 프론트엔드가 아니라 광고사 서버가 우리 Spring 백엔드에 직접 알려줍니다(서버 간 postback, POST /postback/{vendor}). 트랜잭션 ID, 사용자 ID, 캠페인 ID가 함께 옵니다. 프론트엔드는 조작될 수 있으니 이 postback을 기준으로 삼았습니다.',
+              'Used the Adapter pattern: one common AdProvider interface (requestAd, onComplete, onSkip, onError) with one adapter per provider. A new provider is one adapter class and one config entry, with no change to the business logic.',
+              'Adapter 패턴을 썼습니다. 공통 AdProvider 인터페이스(requestAd, onComplete, onSkip, onError)를 두고 광고사마다 어댑터를 하나씩 구현했습니다. 새 광고사는 어댑터 클래스 하나와 설정 한 줄로 붙고, 비즈니스 로직은 그대로입니다.',
             ),
             l(
-              'Used the Adapter pattern: one common AdProvider interface (requestAd, onComplete, onSkip, onError) and one adapter class per provider. Adding a new provider means one adapter and one config entry, with no change to the business logic.',
-              'Adapter 패턴을 썼습니다. 공통 AdProvider 인터페이스(requestAd, onComplete, onSkip, onError)를 정의하고 광고사마다 그걸 구현한 어댑터 클래스를 하나씩 두었습니다. 새 광고사를 붙일 때는 어댑터 하나와 설정 한 줄만 추가하면 되고, 비즈니스 로직은 건드리지 않습니다.',
+              'Treated the provider’s server-to-server postback (POST /postback/{vendor}) as the source of truth instead of the frontend. The backend checks the sender’s IP range, verifies the signature with a shared secret, and checks campaign status and user eligibility before paying anything.',
+              '리워드 지급의 기준은 프론트엔드가 아니라 광고사 서버가 직접 보내는 postback(POST /postback/{vendor})으로 잡았습니다. 백엔드는 보낸 쪽 IP 범위, 공유 비밀키 서명, 캠페인 상태와 사용자 자격을 확인한 뒤에만 지급합니다.',
             ),
             l(
-              'Kept the controller thin: it receives the request, uses the right adapter to turn the provider’s payload into a common PostbackEvent, then checks the sender’s IP against the provider’s allowed ranges, verifies the signature with a shared secret, and checks the campaign status and whether the user is still eligible. Errors are handled in one place with @ControllerAdvice.',
-              '컨트롤러는 얇게 유지했습니다. 요청을 받아 해당 어댑터로 광고사별 데이터를 공통 PostbackEvent로 바꾸고, 보낸 쪽 IP가 광고사의 허용 범위인지, 공유 비밀키로 서명이 맞는지, 캠페인이 유효한지, 사용자가 아직 받을 자격이 있는지를 확인합니다. 에러 처리는 @ControllerAdvice로 한곳에 모았습니다.',
-            ),
-            l(
-              'The reward itself is written inside one database transaction so the reward record and the user’s balance always change together. A unique constraint on (vendor, transaction_id) blocks duplicates: if the same postback arrives twice, the second insert is rejected, we treat it as already processed and still return 200 OK, because providers retry when they don’t get a success response and we don’t want to trigger more retries.',
-              '리워드 지급은 하나의 DB 트랜잭션 안에서 처리해서 리워드 기록과 사용자 잔액이 항상 함께 바뀝니다. (vendor, transaction_id)에 유니크 제약을 걸어 중복을 막았고, 같은 postback이 두 번 오면 두 번째 insert는 DB가 거부합니다. 이때는 "이미 처리됨"으로 보고 200 OK를 돌려줍니다. 광고사는 성공 응답을 못 받으면 재전송하기 때문에, 에러를 돌려주면 재시도만 늘어나기 때문입니다.',
-            ),
-            l(
-              'Kept the handler fast: validation and the reward write happen synchronously, while notifications and analytics are pushed off to run asynchronously with ApplicationEventPublisher and @Async. Meanwhile the frontend shows "Checking your reward..." and polls GET /rewards/status?txId= every few seconds until the backend confirms.',
-              '핸들러는 빠르게 응답하도록 했습니다. 검증과 리워드 기록은 동기로 처리하고, 알림이나 통계 같은 부수 작업은 ApplicationEventPublisher와 @Async로 비동기로 넘겼습니다. 그 사이 프론트엔드는 "리워드 확인 중..."을 보여주면서 GET /rewards/status?txId= 를 몇 초마다 확인하고, 백엔드가 확인해 주면 포인트를 표시합니다.',
+              'Made the payment safe to retry: the reward is written in one database transaction, and a unique constraint on (vendor, transaction_id) rejects a duplicate postback. A duplicate still gets 200 OK, because providers retry until they see success. Notifications and analytics run asynchronously so the response stays fast.',
+              '같은 요청이 다시 와도 안전하게 만들었습니다. 리워드는 하나의 DB 트랜잭션으로 기록하고, (vendor, transaction_id) 유니크 제약으로 중복 postback을 막습니다. 중복이어도 200 OK를 돌려주는데, 광고사는 성공 응답을 받을 때까지 재전송하기 때문입니다. 알림과 통계는 비동기로 넘겨서 응답은 빠르게 유지했습니다.',
             ),
           ],
           result: [
             l(
-              'Skippable 30-second video, banner and interstitial formats from several providers all run through the same flow, new providers plug in with one adapter, and the same completed ad can never pay a user twice.',
-              '여러 광고사의 스킵 가능한 30초 영상, 배너, 전면 광고가 모두 같은 흐름으로 처리되고, 새 광고사는 어댑터 하나로 붙일 수 있으며, 같은 광고 시청으로 포인트가 두 번 나가는 일이 없습니다.',
+              'Skippable video, banner and interstitial ads from several providers run through one flow, new providers plug in with a single adapter, and the same completed ad can never pay a user twice.',
+              '여러 광고사의 스킵 가능 영상, 배너, 전면 광고가 하나의 흐름으로 처리되고, 새 광고사는 어댑터 하나로 붙으며, 같은 광고 시청으로 포인트가 두 번 나가는 일이 없습니다.',
             ),
           ],
         },
