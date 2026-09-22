@@ -9,6 +9,8 @@ export type FlowNode = {
   accent?: boolean
   /** 'bad' = 장애/비정상 노드 (빨간 점선) */
   tone?: 'ok' | 'bad'
+  /** true면 박스 없이 "⋯"만 그려서 생략을 표시 (화살표도 연결하지 않음) */
+  ellipsis?: boolean
 }
 
 export type FlowDiagramSpec = {
@@ -33,28 +35,33 @@ const ROW_H = 118
 const PAD = 16
 const LOOP_MARGIN = 34
 const TITLE_W = 74
+const ELLIPSIS_W = 48
+const nodeW = (n: FlowNode) => (n.ellipsis ? ELLIPSIS_W : NODE_W)
 
 export default function FlowDiagram({ spec }: { spec: FlowDiagramSpec }) {
   const { t } = useLang()
-  const cols = Math.max(...spec.rows.map((r) => r.length))
+  const rowWidthOf = (row: FlowNode[]) => row.reduce((acc, n) => acc + nodeW(n), 0) + (row.length - 1) * GAP_X
   const leftPad = (spec.loop ? LOOP_MARGIN : 0) + (spec.rowTitles ? TITLE_W : 0)
-  const width = PAD * 2 + cols * NODE_W + (cols - 1) * GAP_X + leftPad
+  const width = PAD * 2 + Math.max(...spec.rows.map(rowWidthOf)) + leftPad
   const height = PAD * 2 + spec.rows.length * NODE_H + (spec.rows.length - 1) * (ROW_H - NODE_H) + (spec.loop ? 34 : 0)
 
   // 위치 계산
   const pos = new Map<string, { x: number; y: number }>()
   spec.rows.forEach((row, ri) => {
-    const rowWidth = row.length * NODE_W + (row.length - 1) * GAP_X
-    const startX = PAD + leftPad + (width - PAD * 2 - leftPad - rowWidth) / 2
-    row.forEach((n, ci) => {
-      pos.set(n.id, { x: startX + ci * (NODE_W + GAP_X), y: PAD + ri * ROW_H })
+    const rowWidth = rowWidthOf(row)
+    let x = PAD + leftPad + (width - PAD * 2 - leftPad - rowWidth) / 2
+    row.forEach((n) => {
+      pos.set(n.id, { x, y: PAD + ri * ROW_H })
+      x += nodeW(n) + GAP_X
     })
   })
 
-  const arrows: { d: string; label?: L; lx?: number; ly?: number; bad?: boolean }[] = []
+  const arrows: { d: string; label?: L; lx?: number; ly?: number; bad?: boolean; anchor?: 'start' | 'middle' }[] = []
   spec.rows.forEach((row, ri) => {
     // 행 안 연결
     for (let i = 0; i < row.length - 1; i++) {
+      if (spec.fanOut && ri > 0) break
+      if (row[i].ellipsis || row[i + 1].ellipsis) continue
       const a = pos.get(row[i].id)!
       const b = pos.get(row[i + 1].id)!
       arrows.push({ d: `M ${a.x + NODE_W} ${a.y + NODE_H / 2} L ${b.x} ${b.y + NODE_H / 2}` })
@@ -67,13 +74,15 @@ export default function FlowDiagram({ spec }: { spec: FlowDiagramSpec }) {
       const ay = a.y + NODE_H
       const midY = ay + (next[0] ? (pos.get(next[0].id)!.y - ay) / 2 : 30)
       next.forEach((n, i) => {
+        if (n.ellipsis) return
         const b = pos.get(n.id)!
         const bx = b.x + NODE_W / 2
         arrows.push({
           d: `M ${ax} ${ay} L ${ax} ${midY} L ${bx} ${midY} L ${bx} ${b.y}`,
-          label: i === Math.floor(next.length / 2) ? spec.rowLinks?.[ri] : undefined,
-          lx: ax,
+          label: i === 0 ? spec.rowLinks?.[ri] : undefined,
+          lx: ax + 10,
           ly: midY - 8,
+          anchor: 'start',
           bad: n.tone === 'bad',
         })
       })
@@ -123,7 +132,7 @@ export default function FlowDiagram({ spec }: { spec: FlowDiagramSpec }) {
         <g key={i}>
           <path d={a.d} className={`flow__edge ${a.bad ? 'flow__edge--bad' : ''}`} markerEnd="url(#flow-arrow)" />
           {a.label && a.lx !== undefined && (
-            <text x={a.lx} y={a.ly} className="flow__edge-label" textAnchor="middle">
+            <text x={a.lx} y={a.ly} className="flow__edge-label" textAnchor={a.anchor ?? 'middle'}>
               {t(a.label)}
             </text>
           )}
@@ -147,6 +156,13 @@ export default function FlowDiagram({ spec }: { spec: FlowDiagramSpec }) {
 
       {spec.rows.flat().map((n) => {
         const p = pos.get(n.id)!
+        if (n.ellipsis) {
+          return (
+            <text key={n.id} x={p.x + ELLIPSIS_W / 2} y={p.y + NODE_H / 2 + 8} textAnchor="middle" className="flow__ellipsis">
+              ⋯
+            </text>
+          )
+        }
         return (
           <g key={n.id} className={`flow__node ${n.accent ? 'flow__node--accent' : ''} ${n.tone === 'bad' ? 'flow__node--bad' : ''}`}>
             <rect x={p.x} y={p.y} width={NODE_W} height={NODE_H} rx="12" />

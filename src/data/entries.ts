@@ -292,14 +292,16 @@ export const entries: Entry[] = [
               [
                 { id: 'pod1', label: l('Reward Pod 1', 'Reward Pod 1'), sub: l('ready ✓', 'ready ✓'), accent: true },
                 { id: 'pod2', label: l('Reward Pod 2', 'Reward Pod 2'), sub: l('ready ✓', 'ready ✓'), accent: true },
-                { id: 'pod3', label: l('Reward Pod 3', 'Reward Pod 3'), sub: l('unhealthy ✕ → excluded', 'unhealthy ✕ → 제외'), tone: 'bad' },
+                { id: 'pod-more', label: l('', ''), ellipsis: true },
+                { id: 'pod9', label: l('Reward Pod 9', 'Reward Pod 9'), sub: l('ready ✓', 'ready ✓'), accent: true },
+                { id: 'pod10', label: l('Reward Pod 10', 'Reward Pod 10'), sub: l('unhealthy ✕ → excluded', 'unhealthy ✕ → 제외'), tone: 'bad' },
               ],
             ],
             rowLinks: [l('readiness-gated routing', 'readiness 기준 라우팅')],
           },
           architectureNote: l(
-            'The reward service runs as several Pods behind a Kubernetes Service. A Pod that fails its readiness check is dropped from the endpoints; one that keeps failing liveness is restarted, and the Deployment keeps the replica count at 3.',
-            'Reward 서비스는 Kubernetes Service 뒤의 여러 Pod로 동작합니다. readiness 체크에 실패한 Pod는 endpoint에서 제외되고, liveness에 반복 실패하면 재시작되며, Deployment가 replica 수를 3으로 유지합니다.',
+            'The reward service runs as several Pods behind a Kubernetes Service. A Pod that fails its readiness check is dropped from the endpoints; one that keeps failing liveness is restarted, and the Deployment keeps the replica count at 10.',
+            'Reward 서비스는 Kubernetes Service 뒤의 여러 Pod로 동작합니다. readiness 체크에 실패한 Pod는 endpoint에서 제외되고, liveness에 반복 실패하면 재시작되며, Deployment가 replica 수를 10으로 유지합니다.',
           ),
           problem: [
             l(
@@ -329,8 +331,8 @@ export const entries: Entry[] = [
               'liveness probe도 설정해, liveness 체크가 반복적으로 실패하면 해당 컨테이너가 자동으로 재시작되도록 했습니다.',
             ),
             l(
-              'Set the Deployment’s desired replicas (e.g. 3) so that if a Pod terminates entirely, Kubernetes schedules a new one automatically.',
-              'Pod가 완전히 종료되는 경우에도 Deployment의 desired replicas(예: 3)에 따라 Kubernetes가 자동으로 새 Pod를 생성하도록 했습니다.',
+              'Set the Deployment’s desired replicas (10) so that if a Pod terminates entirely, Kubernetes schedules a new one automatically.',
+              'Pod가 완전히 종료되는 경우에도 Deployment의 desired replicas(10)에 따라 Kubernetes가 자동으로 새 Pod를 생성하도록 했습니다.',
             ),
           ],
           result: [
@@ -517,7 +519,7 @@ export const entries: Entry[] = [
             ),
           ],
           result: [
-            l('Mobile user traffic increased by 30% after the redesigned screens shipped.', '리디자인된 화면이 배포된 뒤 모바일 사용자 트래픽이 30% 증가했습니다.'),
+            l('Mobile user traffic increased by 20% after the redesigned screens shipped.', '리디자인된 화면이 배포된 뒤 모바일 사용자 트래픽이 20% 증가했습니다.'),
           ],
         },
       },
