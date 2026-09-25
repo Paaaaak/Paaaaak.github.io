@@ -283,21 +283,48 @@ ul, ol { margin: 0; padding: 0; }
 }
 /* 경력 카드: 호버 시 카드만 살짝 떠오르고 회사색 테두리 */
 .entry__content {
+  --mx: 50%; --my: 50%; --rx: 0deg; --ry: 0deg;
+  position: relative; isolation: isolate;
   display: flex; flex-direction: column;
   width: 100%; max-width: 520px;
   padding: 30px 32px 30px;
   border-radius: 22px;
   background: var(--surface);
-  border: 1px solid var(--border);
-  box-shadow: 0 1px 2px rgba(0,0,0,.03), 0 12px 32px -24px rgba(0,0,0,.25);
+  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.04);
   cursor: pointer;
-  transition: transform .45s var(--ease), border-color .45s var(--ease), box-shadow .45s var(--ease), background .45s var(--ease);
+  transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style: preserve-3d;
+  transition: transform .18s ease-out, box-shadow .45s var(--ease), border-color .45s var(--ease);
+  will-change: transform;
 }
+/* 마우스를 따라다니는 회사색 스포트라이트 */
+.entry__content::before {
+  content: ''; position: absolute; inset: 0; z-index: 0;
+  border-radius: inherit; pointer-events: none;
+  background: radial-gradient(360px circle at var(--mx) var(--my), color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%);
+  opacity: 0; transition: opacity .35s var(--ease);
+}
+/* 마우스 근처에서만 빛나는 테두리 */
+.entry__content::after {
+  content: ''; position: absolute; inset: 0; z-index: 0;
+  border-radius: inherit; padding: 1.5px; pointer-events: none;
+  background: radial-gradient(260px circle at var(--mx) var(--my), var(--accent), transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity: 0; transition: opacity .35s var(--ease);
+}
+.entry__content > * { position: relative; z-index: 1; }
 .entry__content:hover, .entry__content:focus-within {
-  transform: translateY(-4px);
-  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
-  background: color-mix(in srgb, var(--accent) 3%, var(--surface));
-  box-shadow: 0 1px 2px rgba(0,0,0,.03), 0 24px 48px -28px color-mix(in srgb, var(--accent) 55%, transparent);
+  transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry)) translateY(-4px) scale(1.01);
+  box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 28px 56px -24px color-mix(in srgb, var(--accent) 45%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 20%, transparent);
+}
+.entry__content:hover::before, .entry__content:hover::after,
+.entry__content:focus-within::before, .entry__content:focus-within::after { opacity: 1; }
+@media (hover: none), (prefers-reduced-motion: reduce) {
+  .entry__content, .entry__content:hover { transform: none; }
 }
 .entry--left  .entry__content { grid-column: 1; justify-self: end; align-items: flex-end; text-align: right; }
 .entry--right .entry__content { grid-column: 2; justify-self: start; align-items: flex-start; text-align: left; }

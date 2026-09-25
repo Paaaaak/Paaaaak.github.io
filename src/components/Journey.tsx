@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react'
 import { entries, type Entry } from '../data/entries'
 import { ui, useLang } from '../i18n'
 import EntryModal from './EntryModal'
@@ -18,6 +18,23 @@ export default function Journey() {
     Object.values(refs.current).forEach((el) => el && io.observe(el))
     return () => io.disconnect()
   }, [])
+
+  // 카드 위 마우스 위치 → 스포트라이트(--mx/--my)와 살짝 기울기(--rx/--ry)
+  const trackPointer = (ev: ReactMouseEvent<HTMLDivElement>) => {
+    const el = ev.currentTarget
+    const r = el.getBoundingClientRect()
+    const x = (ev.clientX - r.left) / r.width
+    const y = (ev.clientY - r.top) / r.height
+    el.style.setProperty('--mx', `${x * 100}%`)
+    el.style.setProperty('--my', `${y * 100}%`)
+    el.style.setProperty('--rx', `${(y - 0.5) * -6}deg`)
+    el.style.setProperty('--ry', `${(x - 0.5) * 6}deg`)
+  }
+  const resetPointer = (ev: ReactMouseEvent<HTMLDivElement>) => {
+    const el = ev.currentTarget
+    el.style.setProperty('--rx', '0deg')
+    el.style.setProperty('--ry', '0deg')
+  }
 
   // 좌/우는 work 항목 기준으로 번갈아
   let side = 0
@@ -77,7 +94,15 @@ export default function Journey() {
             })()}
 
             <div className="container entry__inner">
-              <div className="entry__content" onClick={() => setOpen(e)} role="button" tabIndex={0} onKeyDown={(ev) => (ev.key === 'Enter' || ev.key === ' ') && setOpen(e)}>
+              <div
+                className="entry__content"
+                onClick={() => setOpen(e)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(ev) => (ev.key === 'Enter' || ev.key === ' ') && setOpen(e)}
+                onMouseMove={trackPointer}
+                onMouseLeave={resetPointer}
+              >
                 <div className="entry__meta">
                   <span className="entry__kind">{t(ui.entry.work)}</span>
                 </div>
