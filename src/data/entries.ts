@@ -638,7 +638,7 @@ export const entries: Entry[] = [
       {
         id: 'data-pipeline',
         title: l('Sales data pipeline for 500 stores, from nightly batch to HQ dashboard', '500개 매장 판매 데이터 파이프라인, 야간 배치에서 본사 대시보드까지'),
-        stack: ['Spring Batch', 'MSSQL', 'Spring Cache', 'Covering indexes'],
+        stack: ['Spring Batch', 'MSSQL', 'Spring Cache', 'SQL optimization'],
         detail: {
           context: [
             l(
