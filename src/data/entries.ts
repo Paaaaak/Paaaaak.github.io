@@ -537,36 +537,78 @@ export const entries: Entry[] = [
       '첫 회사입니다. 쌤소나이트 500여 개 매장의 EPOS와 창고 시스템을 Spring Boot로 개발·운영했고, 창고를 직접 방문해 스캔 작업을 고치고, PDA .NET 시스템을 Node.js 웹 앱으로 옮기는 일을 맡았으며, 본사 대시보드를 빠르게 유지했습니다.',
     ),
     stories: [
-      // ── EPOS ─────────────────────────────────────────────────
+      // ── ★ Data pipeline: nightly batch → HQ dashboard ────────
       {
-        id: 'epos',
-        title: l('Samsonite EPOS system for 500+ stores', '쌤소나이트 EPOS 시스템, 전국 500여 개 매장'),
-        stack: ['Spring Boot', 'MSSQL', 'Batch'],
-        detail: {
-          context: [
+        id: 'data-pipeline',
+        title: l('Sales data pipeline for 500 stores, from nightly batch to HQ dashboard', '500개 매장 판매 데이터 파이프라인, 야간 배치에서 본사 대시보드까지'),
+        stack: ['Spring Batch', 'MSSQL', 'Spring Cache', 'SQL optimization'],
+        caseStudy: {
+          architecture: {
+            rows: [
+              [
+                { id: 'stores', label: l('500 stores', '500개 매장'), sub: l('daily CSV per store', '매장별 일일 CSV') },
+                { id: 'job', label: l('Spring Batch job', 'Spring Batch 잡'), sub: l('runs nightly', '매일 밤 실행'), accent: true },
+              ],
+              [
+                { id: 'reader', label: l('Reader', 'Reader'), sub: l('FlatFileItemReader', 'FlatFileItemReader'), accent: true },
+                { id: 'processor', label: l('Processor', 'Processor'), sub: l('validate · skip bad rows', '검증 · 오류 행 분리'), accent: true },
+                { id: 'writer', label: l('Writer', 'Writer'), sub: l('bulk insert · chunk = tx', '일괄 insert · 청크 = 트랜잭션'), accent: true },
+              ],
+              [
+                { id: 'summary', label: l('Summary tables', '집계 테이블'), sub: l('daily · per store', '일별 · 매장별'), accent: true },
+                { id: 'dash', label: l('HQ dashboard', '본사 대시보드'), sub: l('cache · covering indexes', '캐시 · 커버링 인덱스') },
+              ],
+            ],
+            rowLinks: [l('read files', '파일 읽기'), l('final step: aggregate', '마지막 Step: 집계')],
+          },
+          architectureNote: l(
+            'Colored boxes are the parts I built. Bad records are skipped and logged in the Processor, so one store’s broken file never stops the job for the others.',
+            '색이 칠해진 박스가 제가 만든 부분입니다. 잘못된 레코드는 Processor에서 건너뛰고 로그로 남겨서, 매장 한 곳의 파일 문제가 다른 매장의 처리를 막지 않습니다.',
+          ),
+          problem: [
             l(
-              'Nexol System builds and runs the retail and logistics systems for Samsonite Korea, including the EPOS (point-of-sale) system used in 500+ stores and the warehouse management system. I developed and maintained both, on Spring Boot.',
-              '넥솔시스템은 쌤소나이트 코리아의 리테일·물류 시스템을 개발하고 운영하는 회사입니다. 전국 500여 개 매장에서 쓰는 EPOS(판매 시점 관리)와 창고 관리 시스템이 여기 포함되고, 저는 둘 다 Spring Boot 기반으로 개발·운영했습니다.',
+              'Samsonite Korea had about 500 stores across department stores, duty-free shops and outlets, and headquarters needed to see every store’s sales and refunds in one place and trust the numbers.',
+              '쌤소나이트코리아는 백화점, 면세점, 아울렛까지 합쳐 전국에 약 500개 매장이 있었고, 본사는 모든 매장의 판매·환불 데이터를 한곳에서 정확하게 봐야 했습니다.',
+            ),
+            l(
+              'Each store sent its daily transactions as a CSV file. Files could have missing fields, wrong formats, duplicated transactions, or refunds that didn’t match any sale, and one bad file could not be allowed to block the other 499 stores.',
+              '매장마다 하루 거래를 CSV 파일로 보냈는데, 필수값 누락, 포맷 오류, 중복 거래, 원거래가 없는 환불 같은 문제가 섞여 들어올 수 있었고, 파일 하나 때문에 나머지 499개 매장 처리가 막히면 안 됐습니다.',
+            ),
+            l(
+              'As years of data piled up, year-over-year comparison queries scanned millions of rows, and every morning HQ and store managers opened the dashboard at the same time and ran the same heavy queries.',
+              '몇 년치 데이터가 쌓이면서 전년 동기 비교 쿼리가 수백만 건을 읽게 됐고, 아침마다 본사와 매장 관리자들이 동시에 대시보드를 열어 같은 무거운 쿼리가 반복 실행됐습니다.',
             ),
           ],
-          did: [
+          solution: [
             l(
-              'On the maintenance side, the nightly closing batch was the critical piece. Every night the transactions from all 500 stores are aggregated and sent to headquarters, and when that failed, HQ had no sales report in the morning. A common cause was a store losing its network during the day, so its transactions arrived late or not at all.',
-              '운영 쪽에서 가장 중요한 건 야간 마감 배치였습니다. 매일 밤 500개 매장의 거래를 모아서 본사로 보내는데, 이게 실패하면 본사는 아침에 매출 리포트를 볼 수 없습니다. 흔한 원인은 매장이 낮에 네트워크가 끊겨서 거래가 늦게 오거나 아예 안 오는 경우였습니다.',
+              'Built the nightly job with Spring Batch: a FlatFileItemReader reads each store’s CSV in chunks, a few thousand records a day in total.',
+              'Spring Batch로 야간 잡을 만들었습니다. FlatFileItemReader가 매장별 CSV를 청크 단위로 읽고, 하루 전체로 수천 건 규모입니다.',
             ),
             l(
-              'Improved the retry and re-processing logic so late transactions are picked up automatically in the next run, instead of someone manually re-running the batch at 7 a.m.',
-              '재시도와 재처리 로직을 고쳐서, 늦게 도착한 거래를 다음 실행에서 자동으로 반영하도록 했습니다. 누군가 아침 7시에 배치를 손으로 다시 돌리는 일이 없어졌습니다.',
+              'An ItemProcessor validates every record: required fields present, dates and amounts in the right format, no duplicate transactions, and each refund matched to a real original sale. Bad records are skipped, logged and set aside instead of failing the job.',
+              'ItemProcessor에서 레코드마다 필수값, 날짜·금액 포맷, 중복 거래, 환불 건과 원거래 매칭을 검증합니다. 오류 레코드는 잡을 실패시키는 대신 skip 정책으로 로그를 남기고 따로 분리합니다.',
             ),
             l(
-              'On the development side, built the sales dashboard screens for headquarters. Those dashboard queries turned out to be the slow ones I later fixed in the performance work below.',
-              '개발 쪽에서는 본사용 매출 대시보드 화면을 만들었습니다. 이 대시보드의 쿼리가 나중에 느려져서, 아래의 성능 개선 작업으로 이어졌습니다.',
+              'An ItemWriter bulk-inserts the valid records into MSSQL. Each chunk is its own transaction, so a failure rolls back only that chunk and the job restarts from the last commit, not from the beginning.',
+              'ItemWriter가 검증을 통과한 데이터를 MSSQL에 일괄 insert합니다. 청크 하나가 트랜잭션 하나라서 실패해도 그 청크만 롤백되고, 처음이 아니라 마지막 커밋 지점부터 재시작합니다.',
+            ),
+            l(
+              'A final step updates the daily and per-store summary tables, and the HQ dashboard reads from those tables to show sales, refunds and period comparisons.',
+              '마지막 Step에서 일별·매장별 집계 테이블을 갱신하고, 본사 대시보드는 이 테이블을 기반으로 매출, 환불, 기간 비교를 보여줍니다.',
+            ),
+            l(
+              'For the slow queries: added covering indexes for the most common ones so they don’t touch the raw table, moved heavy aggregations into the batch so they are computed ahead of time, and cached the most-viewed screens with Spring Cache.',
+              '느린 쿼리에는 세 가지를 적용했습니다. 자주 쓰는 쿼리에 커버링 인덱스를 만들어 원본 테이블을 다시 읽지 않게 했고, 무거운 집계는 배치에서 미리 계산했고, 자주 보는 화면은 Spring Cache로 캐싱했습니다.',
             ),
           ],
           result: [
             l(
-              'Headquarters got its morning sales report reliably, and the dashboard became the main way they looked at store performance.',
-              '본사가 아침 매출 리포트를 안정적으로 받게 되었고, 대시보드는 본사가 매장 실적을 보는 기본 창구가 되었습니다.',
+              'Headquarters gets one trusted set of numbers across all 500 stores every morning, and a bad file from one store no longer delays the rest.',
+              '본사는 매일 아침 500개 매장 전체에 대해 믿을 수 있는 하나의 숫자를 받게 되었고, 매장 한 곳의 파일 문제가 나머지를 지연시키는 일이 없어졌습니다.',
+            ),
+            l(
+              'Dashboard response time dropped by 20% and stayed stable at the morning peak.',
+              '대시보드 응답 시간이 20% 줄었고 아침 피크 시간에도 안정적으로 동작합니다.',
             ),
           ],
         },
@@ -629,49 +671,6 @@ export const entries: Entry[] = [
             l(
               'Rolling out bug fixes and responding to production issues became much faster, and application downtime decreased by 30%.',
               '버그 수정 배포와 운영 이슈 대응이 훨씬 빨라졌고, 애플리케이션 다운타임이 30% 줄었습니다.',
-            ),
-          ],
-        },
-      },
-
-      // ── Data pipeline: nightly batch → HQ dashboard ──────────
-      {
-        id: 'data-pipeline',
-        title: l('Sales data pipeline for 500 stores, from nightly batch to HQ dashboard', '500개 매장 판매 데이터 파이프라인, 야간 배치에서 본사 대시보드까지'),
-        stack: ['Spring Batch', 'MSSQL', 'Spring Cache', 'SQL optimization'],
-        detail: {
-          context: [
-            l(
-              'Samsonite Korea had about 500 stores across department stores, duty-free shops and outlets. Headquarters needed to see every store’s sales and refunds in one place and trust the numbers, and I owned the pipeline that collects that data and feeds the dashboard.',
-              '쌤소나이트코리아는 백화점, 면세점, 아울렛까지 합쳐 전국에 약 500개 매장이 있었습니다. 본사가 모든 매장의 판매·환불 데이터를 한곳에서 정확하게 볼 수 있어야 했고, 그 데이터를 모아 대시보드로 보여주는 파이프라인을 맡았습니다.',
-            ),
-          ],
-          did: [
-            l(
-              'Collection: each store sent its daily transactions as a CSV file. A Spring Batch job ran every night and read the files in chunks with FlatFileItemReader, a few thousand records a day in total.',
-              '수집: 매장마다 하루 거래 데이터를 CSV 파일로 보냈습니다. 매일 밤 Spring Batch 잡이 실행돼 FlatFileItemReader로 파일을 청크 단위로 읽었고, 하루 전체로 수천 건 규모였습니다.',
-            ),
-            l(
-              'Validation: an ItemProcessor checked every record, whether required fields were filled, dates and amounts were in the right format, the same transaction hadn’t come in twice, and each refund matched a real original sale. Bad records were skipped, logged and set aside, so one store’s broken file could not stop the job for the other 499.',
-              '검증: ItemProcessor에서 레코드마다 필수값, 날짜·금액 포맷, 중복 거래, 환불 건과 원거래 매칭을 확인했습니다. 오류 레코드는 skip 정책으로 로그를 남기고 따로 분리해서, 매장 한 곳의 잘못된 파일 때문에 나머지 매장까지 잡이 멈추지 않게 했습니다.',
-            ),
-            l(
-              'Loading: records that passed were bulk-inserted into MSSQL with an ItemWriter. Each chunk was its own transaction, so a failure rolled back only that chunk and the job could restart from the last commit instead of from the beginning.',
-              '적재: 검증을 통과한 데이터는 ItemWriter로 MSSQL에 일괄 insert했습니다. 청크 하나가 트랜잭션 하나라서 중간에 실패해도 해당 청크만 롤백되고, 처음부터가 아니라 마지막 커밋 지점부터 재시작할 수 있었습니다.',
-            ),
-            l(
-              'Aggregation: a final step updated the daily and per-store summary tables, and the HQ dashboard read from those tables to show sales, refunds and period-over-period comparisons.',
-              '집계: 마지막 Step에서 일별·매장별 집계 테이블을 갱신했고, 본사 대시보드는 이 테이블을 기반으로 매출, 환불, 기간 비교를 보여줬습니다.',
-            ),
-            l(
-              'Performance: over time two problems showed up. Years of data piled up, so a year-over-year comparison scanned millions of rows, and every morning HQ and store managers opened the dashboard at the same time and ran the same heavy queries. I added covering indexes for the most common queries, moved the heavy aggregations into the batch so they were computed ahead of time, and cached the most-viewed screens with Spring Cache.',
-              '성능: 시간이 지나며 두 가지 문제가 생겼습니다. 몇 년치가 쌓이면서 전년 동기 비교 쿼리가 수백만 건을 읽게 됐고, 아침마다 본사와 매장 관리자들이 동시에 대시보드를 열어 같은 무거운 쿼리가 반복 실행됐습니다. 자주 쓰는 쿼리에 커버링 인덱스를 만들고, 무거운 집계는 배치에서 미리 계산하고, 자주 보는 화면은 Spring Cache로 캐싱했습니다.',
-            ),
-          ],
-          result: [
-            l(
-              'Dashboard response time dropped by 20% and stayed stable at the morning peak, and headquarters could rely on one set of numbers across all 500 stores.',
-              '대시보드 응답 시간이 20% 줄고 아침 피크 시간에도 안정적으로 동작했으며, 본사는 500개 매장 전체에 대해 하나의 숫자를 믿고 볼 수 있게 되었습니다.',
             ),
           ],
         },
