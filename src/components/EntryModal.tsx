@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { entries, type Entry, type Story, type StoryDetail } from '../data/entries'
-import { Bi, ui, useLang, type L } from '../i18n'
+import { ui, useLang, type L } from '../i18n'
 import FlowDiagram from './FlowDiagram'
 
 type Props = {
@@ -20,14 +20,14 @@ function CaseStudyBody({ story }: { story: Story }) {
       <div className="case__diagram">
         <FlowDiagram spec={cs.architecture} />
       </div>
-      {cs.architectureNote && <p className="case__note"><Bi s={cs.architectureNote} /></p>}
+      {cs.architectureNote && <p className="case__note">{t(cs.architectureNote)}</p>}
 
       <h4 className="modal__label">
         <span className="case__step">02</span> {t(ui.entry.problem)}
       </h4>
       <ul className="modal__list">
         {cs.problem.map((h, i) => (
-          <li key={i}><Bi s={h} /></li>
+          <li key={i}>{t(h)}</li>
         ))}
       </ul>
 
@@ -36,7 +36,7 @@ function CaseStudyBody({ story }: { story: Story }) {
       </h4>
       <ol className="case__steps">
         {cs.solution.map((h, i) => (
-          <li key={i}><Bi s={h} /></li>
+          <li key={i}>{t(h)}</li>
         ))}
       </ol>
 
@@ -45,7 +45,7 @@ function CaseStudyBody({ story }: { story: Story }) {
           <p className="case__callout-title">{t(ui.entry.promptDesign)}</p>
           <ul className="modal__list">
             {cs.promptDesign.map((h, i) => (
-              <li key={i}><Bi s={h} /></li>
+              <li key={i}>{t(h)}</li>
             ))}
           </ul>
         </aside>
@@ -56,7 +56,7 @@ function CaseStudyBody({ story }: { story: Story }) {
       </h4>
       <ul className="modal__list case__results">
         {cs.result.map((h, i) => (
-          <li key={i}><Bi s={h} /></li>
+          <li key={i}>{t(h)}</li>
         ))}
       </ul>
     </div>
@@ -70,7 +70,7 @@ function DetailBody({ detail }: { detail: StoryDetail }) {
       <h4 className={`modal__label ${first ? 'modal__label--first' : ''}`}>{t(label)}</h4>
       <ul className="modal__list">
         {items.map((h, i) => (
-          <li key={i}><Bi s={h} /></li>
+          <li key={i}>{t(h)}</li>
         ))}
       </ul>
     </>
@@ -165,7 +165,7 @@ export default function EntryModal({ entry, onClose, onNavigate }: Props) {
           <p className="sheet__location">
             <span className="flag" aria-hidden="true">{entry.flag}</span> {t(entry.location)}
           </p>
-          <p className="sheet__summary"><Bi s={entry.summary} /></p>
+          <p className="sheet__summary">{t(entry.summary)}</p>
           <ul className="sheet__tags">
             {entry.tags.map((tag) => (
               <li key={tag.en}>{t(tag)}</li>
@@ -214,7 +214,7 @@ export default function EntryModal({ entry, onClose, onNavigate }: Props) {
             <section key={s.id} className={`sstory ${s.caseStudy ? 'sstory--featured' : ''}`} data-story={s.id}>
               <header className="sstory__head">
                 <span className="sstory__index">{String(i + 1).padStart(2, '0')}</span>
-                <h3 className="sstory__title"><Bi s={s.title} /></h3>
+                <h3 className="sstory__title">{t(s.title)}</h3>
                 {s.caseStudy && <span className="story__badge">★ {t(ui.entry.featured)}</span>}
               </header>
 
@@ -225,7 +225,7 @@ export default function EntryModal({ entry, onClose, onNavigate }: Props) {
               ) : (
                 <ul className="story__bullets">
                   {(s.bullets ?? []).map((h, j) => (
-                    <li key={j}><Bi s={h} /></li>
+                    <li key={j}>{t(h)}</li>
                   ))}
                 </ul>
               )}
