@@ -23,7 +23,7 @@ export default function Journey() {
   let side = 0
 
   return (
-    <div className="journey">
+    <div className="journey" style={{ ['--first' as string]: entries[0].accent }}>
       <span className="journey__line" aria-hidden="true" />
 
       {entries.map((e, i) => {
@@ -63,7 +63,6 @@ export default function Journey() {
             ref={(el) => (refs.current[e.id] = el)}
             className={`entry entry--${dir} ${active === e.id ? 'is-active' : ''}`}
             style={style}
-            onClick={() => setOpen(e)}
           >
             <span className="entry__dot" aria-hidden="true" />
             <span className="entry__branch" aria-hidden="true" />
@@ -78,7 +77,7 @@ export default function Journey() {
             })()}
 
             <div className="container entry__inner">
-              <div className="entry__content">
+              <div className="entry__content" onClick={() => setOpen(e)} role="button" tabIndex={0} onKeyDown={(ev) => (ev.key === 'Enter' || ev.key === ' ') && setOpen(e)}>
                 <div className="entry__meta">
                   <span className="entry__kind">{t(ui.entry.work)}</span>
                 </div>
