@@ -634,34 +634,45 @@ export const entries: Entry[] = [
         },
       },
 
-      // ── DB performance ───────────────────────────────────────
+      // ── Data pipeline: nightly batch → HQ dashboard ──────────
       {
-        id: 'db-performance',
-        title: l('Faster dashboard queries under heavy traffic, 20% lower response time', '트래픽이 몰릴 때의 대시보드 쿼리 개선, 응답 시간 20% 단축'),
-        stack: ['MSSQL', 'Indexing', 'Caching'],
+        id: 'data-pipeline',
+        title: l('Sales data pipeline for 500 stores, from nightly batch to HQ dashboard', '500개 매장 판매 데이터 파이프라인, 야간 배치에서 본사 대시보드까지'),
+        stack: ['Spring Batch', 'MSSQL', 'Spring Cache', 'Covering indexes'],
         detail: {
           context: [
             l(
-              'The headquarters sales dashboard aggregated data across 500+ stores, and when many people opened it at once the queries slowed down noticeably.',
-              '본사 매출 대시보드는 500여 개 매장의 데이터를 집계하는데, 여러 사람이 동시에 열면 쿼리가 눈에 띄게 느려졌습니다.',
+              'Samsonite Korea had about 500 stores across department stores, duty-free shops and outlets. Headquarters needed to see every store’s sales and refunds in one place and trust the numbers, and I owned the pipeline that collects that data and feeds the dashboard.',
+              '쌤소나이트코리아는 백화점, 면세점, 아울렛까지 합쳐 전국에 약 500개 매장이 있었습니다. 본사가 모든 매장의 판매·환불 데이터를 한곳에서 정확하게 볼 수 있어야 했고, 그 데이터를 모아 대시보드로 보여주는 파이프라인을 맡았습니다.',
             ),
           ],
           did: [
             l(
-              'Added covering indexes for the queries the dashboard ran most, so they could be answered from the index without touching the full table.',
-              '대시보드가 가장 자주 실행하는 쿼리에 커버링 인덱스를 추가해서, 테이블 전체를 읽지 않고 인덱스만으로 답할 수 있게 했습니다.',
+              'Collection: each store sent its daily transactions as a CSV file. A Spring Batch job ran every night and read the files in chunks with FlatFileItemReader, a few thousand records a day in total.',
+              '수집: 매장마다 하루 거래 데이터를 CSV 파일로 보냈습니다. 매일 밤 Spring Batch 잡이 실행돼 FlatFileItemReader로 파일을 청크 단위로 읽었고, 하루 전체로 수천 건 규모였습니다.',
             ),
             l(
-              'Built pre-aggregated summary tables, filled ahead of time, so the dashboard reads totals that are already computed instead of summing raw transactions on every request.',
-              '미리 집계해 둔 요약 테이블을 만들어서, 요청마다 원본 거래를 다 더하는 대신 이미 계산된 합계를 읽도록 했습니다.',
+              'Validation: an ItemProcessor checked every record, whether required fields were filled, dates and amounts were in the right format, the same transaction hadn’t come in twice, and each refund matched a real original sale. Bad records were skipped, logged and set aside, so one store’s broken file could not stop the job for the other 499.',
+              '검증: ItemProcessor에서 레코드마다 필수값, 날짜·금액 포맷, 중복 거래, 환불 건과 원거래 매칭을 확인했습니다. 오류 레코드는 skip 정책으로 로그를 남기고 따로 분리해서, 매장 한 곳의 잘못된 파일 때문에 나머지 매장까지 잡이 멈추지 않게 했습니다.',
             ),
             l(
-              'Cached results that rarely change so repeated requests didn’t hit the database again.',
-              '자주 바뀌지 않는 결과는 캐싱해서 반복 요청이 DB까지 가지 않게 했습니다.',
+              'Loading: records that passed were bulk-inserted into MSSQL with an ItemWriter. Each chunk was its own transaction, so a failure rolled back only that chunk and the job could restart from the last commit instead of from the beginning.',
+              '적재: 검증을 통과한 데이터는 ItemWriter로 MSSQL에 일괄 insert했습니다. 청크 하나가 트랜잭션 하나라서 중간에 실패해도 해당 청크만 롤백되고, 처음부터가 아니라 마지막 커밋 지점부터 재시작할 수 있었습니다.',
+            ),
+            l(
+              'Aggregation: a final step updated the daily and per-store summary tables, and the HQ dashboard read from those tables to show sales, refunds and period-over-period comparisons.',
+              '집계: 마지막 Step에서 일별·매장별 집계 테이블을 갱신했고, 본사 대시보드는 이 테이블을 기반으로 매출, 환불, 기간 비교를 보여줬습니다.',
+            ),
+            l(
+              'Performance: over time two problems showed up. Years of data piled up, so a year-over-year comparison scanned millions of rows, and every morning HQ and store managers opened the dashboard at the same time and ran the same heavy queries. I added covering indexes for the most common queries, moved the heavy aggregations into the batch so they were computed ahead of time, and cached the most-viewed screens with Spring Cache.',
+              '성능: 시간이 지나며 두 가지 문제가 생겼습니다. 몇 년치가 쌓이면서 전년 동기 비교 쿼리가 수백만 건을 읽게 됐고, 아침마다 본사와 매장 관리자들이 동시에 대시보드를 열어 같은 무거운 쿼리가 반복 실행됐습니다. 자주 쓰는 쿼리에 커버링 인덱스를 만들고, 무거운 집계는 배치에서 미리 계산하고, 자주 보는 화면은 Spring Cache로 캐싱했습니다.',
             ),
           ],
           result: [
-            l('Response times decreased by 20% and stayed stable when traffic peaked.', '응답 시간이 20% 줄었고, 트래픽이 몰릴 때도 안정적으로 유지되었습니다.'),
+            l(
+              'Dashboard response time dropped by 20% and stayed stable at the morning peak, and headquarters could rely on one set of numbers across all 500 stores.',
+              '대시보드 응답 시간이 20% 줄고 아침 피크 시간에도 안정적으로 동작했으며, 본사는 500개 매장 전체에 대해 하나의 숫자를 믿고 볼 수 있게 되었습니다.',
+            ),
           ],
         },
       },
