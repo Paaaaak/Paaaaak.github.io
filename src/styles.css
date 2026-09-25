@@ -16,6 +16,7 @@
   --font: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, monospace;
   --ease: cubic-bezier(.2, .7, .2, 1);
+  --hero-line: 160px;
 }
 
 * { box-sizing: border-box; }
@@ -183,7 +184,7 @@ ul, ol { margin: 0; padding: 0; }
   position: absolute; left: 50%; bottom: 0; z-index: 1;
   transform: translateX(-50%);
   display: flex; align-items: flex-end; justify-content: center;
-  height: 160px; width: 24px;
+  height: var(--hero-line); width: 24px;
 }
 /* 타임라인 선과 그대로 이어지는 고정 선 + 그 위를 흘러내리는 빛 */
 .hero__scroll-line {
@@ -192,35 +193,23 @@ ul, ol { margin: 0; padding: 0; }
   background: linear-gradient(to bottom, transparent, var(--border-strong) 70%, var(--border-strong));
   overflow: hidden;
 }
-/* 히어로 선(0–18%)과 타임라인 선(18–100%)이 하나의 6초 주기로 이어져
-   빛이 위에서 맨 아래 끝까지 한 번에 흘러내린다 */
-.hero__scroll-line::after {
-  content: ''; position: absolute; left: 0; top: 0;
-  width: 100%; height: 56px;
-  background: linear-gradient(to bottom, transparent, var(--first, var(--accent)));
-  animation: drop 6s linear infinite;
-}
-@keyframes drop {
-  0%   { transform: translateY(-56px); opacity: 0 }
-  2%   { opacity: 1 }
-  17%  { transform: translateY(160px); opacity: 1 }
-  18%  { transform: translateY(160px); opacity: 0 }
-  100% { transform: translateY(160px); opacity: 0 }
-}
+/* 빛 한 줄기가 히어로 선 꼭대기에서 출발해 타임라인 선 끝(마지막 점)에서 멈춘다.
+   히어로 선과 타임라인 선은 같은 x축에 있으므로 요소 하나로 두 선을 모두 지난다 */
 .journey__line { overflow: visible; }
 .journey__line::after {
   content: ''; position: absolute; left: 0; width: 100%; height: 140px;
-  top: -140px; opacity: 0;
-  background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--text) 70%, transparent));
-  animation: fall 6s linear infinite;
+  top: calc(-1 * var(--hero-line) - 140px); opacity: 0;
+  background: linear-gradient(to bottom, transparent, var(--first, var(--accent)));
+  animation: fall 7s cubic-bezier(.45, 0, .55, 1) infinite;
 }
 @keyframes fall {
-  0%, 17% { top: -140px; opacity: 0 }
-  18%     { top: -140px; opacity: 1 }
-  96%     { top: 100%;   opacity: 1 }
-  100%    { top: 100%;   opacity: 0 }
+  0%   { top: calc(-1 * var(--hero-line) - 140px); opacity: 0 }
+  4%   { opacity: 1 }
+  88%  { top: calc(100% - 140px); opacity: 1 }
+  93%  { top: calc(100% - 140px); opacity: 0 }
+  100% { top: calc(100% - 140px); opacity: 0 }
 }
-@media (prefers-reduced-motion: reduce) { .hero__scroll-line::after, .journey__line::after { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .journey__line::after { animation: none; } }
 
 /* ─────────────────────────────────────────────
    Journey — center line, alternating sides
@@ -477,14 +466,8 @@ ul, ol { margin: 0; padding: 0; }
   /* 중앙선 → 왼쪽 22px로 이동, 히어로 선과 호버 선도 같은 x에 맞춤 */
   .journey__line, .journey__end { left: 22px; }
   .entry__dot { left: 22px; }
-  .hero__scroll { left: 22px; width: 1px; transform: none; height: 110px; }
-  @keyframes drop {
-    0%   { transform: translateY(-56px); opacity: 0 }
-    2%   { opacity: 1 }
-    17%  { transform: translateY(110px); opacity: 1 }
-    18%  { transform: translateY(110px); opacity: 0 }
-    100% { transform: translateY(110px); opacity: 0 }
-  }
+  .hero__scroll { left: 22px; width: 1px; transform: none; }
+  :root { --hero-line: 110px; }
   .hero { min-height: 0; }
   .hero__inner { padding: 40px 0 120px; }
   .hero__name { font-size: clamp(36px, 11vw, 48px); }
