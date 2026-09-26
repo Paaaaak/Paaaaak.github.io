@@ -170,7 +170,7 @@ export const entries: Entry[] = [
       {
         id: 'vector-recs',
         title: l('Vector-based recommendation service on Azure AI Search', 'Azure AI Search 기반 벡터 추천 서비스'),
-        stack: ['Azure AI Search', 'Embeddings', 'Python'],
+        stack: ['Azure AI Search', 'Azure OpenAI text-embedding-3-small', 'Python'],
         detail: {
           context: [
             l(
@@ -180,8 +180,8 @@ export const entries: Entry[] = [
           ],
           did: [
             l(
-              'Turned each product’s name, description and attributes into an embedding (a list of numbers that captures its meaning) and stored them in an Azure AI Search index that supports vector search.',
-              '각 상품의 이름, 설명, 속성을 임베딩(상품의 의미를 숫자 벡터로 표현한 것)으로 바꾸고, 벡터 검색을 지원하는 Azure AI Search 인덱스에 저장했습니다.',
+              'Turned each product’s name, description and attributes (scent notes, brand, concentration, gender) into an embedding, a list of numbers that captures its meaning, using the Azure OpenAI text-embedding-3-small model, and stored the vectors in an Azure AI Search index that supports vector search.',
+              '각 상품의 이름, 설명, 속성(향 노트, 브랜드, 농도, 성별)을 Azure OpenAI의 text-embedding-3-small 모델로 임베딩(상품의 의미를 숫자 벡터로 표현한 것)으로 바꾸고, 벡터 검색을 지원하는 Azure AI Search 인덱스에 저장했습니다.',
             ),
             l(
               'Built the service that takes a product, finds the closest vectors in the index, and returns them as "similar products", with basic filters such as in-stock only.',
