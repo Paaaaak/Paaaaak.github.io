@@ -170,7 +170,7 @@ export const entries: Entry[] = [
       {
         id: 'vector-recs',
         title: l('Vector-based recommendation service on Azure AI Search', 'Azure AI Search 기반 벡터 추천 서비스'),
-        stack: ['Azure AI Search', 'Azure OpenAI text-embedding-3-small', 'Python'],
+        stack: ['Azure AI Search', 'Azure OpenAI', 'Python'],
         detail: {
           context: [
             l(
