@@ -622,24 +622,24 @@ export const entries: Entry[] = [
         detail: {
           context: [
             l(
-              'Visited the Samsonite logistics warehouses to see how the inbound and outbound scanning actually worked, rather than going by what the tickets said.',
-              '티켓에 적힌 내용만 보지 않고, 쌤소나이트 물류창고에 직접 가서 입출고 스캔 작업이 실제로 어떻게 돌아가는지 봤습니다.',
+              'Visited the Samsonite logistics warehouses to see how the inbound and outbound scanning workflows actually ran, and to find where the time was going.',
+              '쌤소나이트 물류창고를 직접 방문해 입출고 스캔 작업이 실제로 어떻게 돌아가는지, 어디서 시간이 새는지 확인했습니다.',
             ),
           ],
           did: [
             l(
-              'Found that for every item, a worker scanned the barcode, then searched for the product manually, found the matching row, and updated the quantity and status by hand. Several steps for something that should be one.',
-              '작업자가 상품마다 바코드를 찍은 뒤, 상품을 직접 검색해서 해당 행을 찾고, 수량과 상태를 손으로 바꾸고 있었습니다. 한 번에 끝나야 할 일이 여러 단계로 쪼개져 있었습니다.',
+              'Identified the inefficiency: for every item, a worker scanned the barcode, then searched for the product manually, found the matching row, and updated the quantity and status by hand.',
+              '비효율을 찾아냈습니다. 작업자가 상품마다 바코드를 찍은 뒤 상품을 직접 검색해 해당 행을 찾고, 수량과 상태를 손으로 바꾸고 있었습니다.',
             ),
             l(
-              'Built a Node.js-based single-scan flow: once the barcode is scanned, the system identifies the product and updates the inventory record itself, so the worker only confirms when something doesn’t match.',
-              'Node.js 기반의 싱글 스캔 흐름을 만들었습니다. 바코드를 찍으면 시스템이 상품을 알아서 찾아 재고 기록을 바로 갱신하고, 작업자는 뭔가 안 맞을 때만 확인하면 됩니다.',
+              'Implemented a Node.js-based single-scan automation: once the barcode is scanned, the system identifies the product and updates the inventory record itself, so the worker only steps in when something doesn’t match.',
+              'Node.js 기반의 싱글 스캔 자동화를 구현했습니다. 바코드를 찍으면 시스템이 상품을 알아서 찾아 재고 기록을 바로 갱신하고, 작업자는 뭔가 안 맞을 때만 개입합니다.',
             ),
           ],
           result: [
             l(
-              'The number of manual steps per inbound and outbound operation dropped, and the change came from watching the work rather than from a feature request.',
-              '입출고 작업마다 필요한 수작업 단계가 줄었습니다. 그리고 이 개선은 기능 요청이 아니라 현장에서 일하는 모습을 직접 본 데서 나왔습니다.',
+              'Fewer manual steps per inbound and outbound operation, and a smoother workflow for the warehouse team.',
+              '입출고 작업마다 필요한 수작업 단계가 줄었고, 창고 팀의 작업 흐름이 매끄러워졌습니다.',
             ),
           ],
         },
