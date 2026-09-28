@@ -79,8 +79,8 @@ export const entries: Entry[] = [
             rows: [
               [
                 { id: 'pr', label: l('Pull Request', 'Pull Request'), sub: l('Azure DevOps Repos', 'Azure DevOps Repos') },
-                { id: 'pipe', label: l('Pipeline trigger', '파이프라인 트리거'), sub: l('on PR create / update', 'PR 생성 · 업데이트 시') },
-                { id: 'agent', label: l('Review Agent', '리뷰 에이전트'), sub: l('diff · context · chunking', 'diff · 컨텍스트 · 청킹'), accent: true },
+                { id: 'pipe', label: l('Build validation', 'Build validation'), sub: l('branch policy on main', 'main 브랜치 정책') },
+                { id: 'agent', label: l('Python review step', 'Python 리뷰 스텝'), sub: l('PR info · diff · rules', 'PR 정보 · diff · 규칙'), accent: true },
               ],
               [
                 { id: 'claude', label: l('Claude API', 'Claude API'), sub: l('structured output', '구조화 출력') },
@@ -111,8 +111,12 @@ export const entries: Entry[] = [
           ],
           solution: [
             l(
-              'Added the agent as a step in the Azure DevOps pipeline, triggered on PR create/update, so every PR gets reviewed automatically without anyone having to start it.',
-              'PR이 생성되거나 업데이트될 때 실행되는 단계로 에이전트를 Azure DevOps 파이프라인에 추가해, 누가 따로 실행하지 않아도 모든 PR이 자동으로 리뷰되게 했습니다.',
+              'Added a build validation policy on the main branch, so opening or updating a PR automatically runs the pipeline. No one has to start the review.',
+              'main 브랜치에 build validation 정책을 추가해서, PR을 만들거나 업데이트하면 파이프라인이 자동으로 실행되게 했습니다. 누가 따로 리뷰를 시작할 필요가 없습니다.',
+            ),
+            l(
+              'Added a Python step to that pipeline that runs the agent: it reads the PR ID from the pipeline variables, pulls the PR title, description and changed files through the Azure DevOps REST API, gets the diff with git, and loads the review rules from the code-review-hub repo.',
+              '그 파이프라인에 에이전트를 실행하는 Python 스텝을 추가했습니다. 파이프라인 변수에서 PR 번호를 읽고, Azure DevOps REST API로 PR 제목·설명·변경 파일을 가져오고, git으로 diff를 뜨고, code-review-hub 저장소에서 리뷰 규칙을 불러옵니다.',
             ),
             l(
               'Assembled each prompt from the team’s review rules, the PR’s metadata, and the diff with the code around it (details below).',
@@ -123,8 +127,8 @@ export const entries: Entry[] = [
               'Claude가 파일, 라인, 심각도, 구체적인 수정 제안을 포함한 구조화된 형식으로 응답하도록 요청해, 결과를 코드로 바로 처리할 수 있게 했습니다.',
             ),
             l(
-              'The Python script validates the findings and posts each one back through the Azure DevOps REST API as an inline comment on the changed line, plus one PR-level summary.',
-              'Python 스크립트가 지적 사항을 검증한 뒤, Azure DevOps REST API로 각 지적을 해당 변경 라인에 인라인 코멘트로 남기고 PR 전체 요약도 하나 남깁니다.',
+              'The script then validates the findings and posts each one back through the Azure DevOps REST API as an inline comment on the changed line, plus one PR-level summary.',
+              '그다음 스크립트가 지적 사항을 검증한 뒤, Azure DevOps REST API로 각 지적을 해당 변경 라인에 인라인 코멘트로 남기고 PR 전체 요약도 하나 남깁니다.',
             ),
             l(
               'Tested it against real pull requests and adjusted the prompt structure and severity thresholds until the comments were useful and the noise was low.',
