@@ -60,7 +60,7 @@ export const entries: Entry[] = [
     accent: '#8b1e5e',
     accentSoft: '#f6e7ef',
     tags: [
-      l('LLM Agents · Tool Calling', 'LLM 에이전트 · Tool Calling'),
+      l('LLM Agents in CI/CD', 'CI/CD 속 LLM 에이전트'),
       l('Prompt & Context Engineering', '프롬프트 & 컨텍스트 엔지니어링'),
       l('Retrieval & Embedding Pipelines', '검색 & 임베딩 파이프라인'),
     ],
@@ -73,7 +73,7 @@ export const entries: Entry[] = [
       {
         id: 'code-review-agent',
         title: l('AI code review agent in Azure DevOps CI/CD', 'Azure DevOps CI/CD의 AI 코드 리뷰 에이전트'),
-        stack: ['Claude API', 'Azure DevOps Pipelines & REST API', 'TypeScript'],
+        stack: ['Claude API', 'Azure DevOps Pipelines & REST API', 'Python'],
         caseStudy: {
           architecture: {
             rows: [
@@ -101,30 +101,30 @@ export const entries: Entry[] = [
               '모든 PR에서 코드 스타일, 명백한 버그, 테스트 누락 같은 반복적인 1차 점검을 끝낸 뒤에야 리뷰어가 본질적인 리뷰를 시작할 수 있었습니다.',
             ),
             l(
-              'Rule-based tooling (linters, static checks) cannot judge intent, naming, or whether a change fits the surrounding code.',
-              '린터나 정적 분석 같은 규칙 기반 도구는 코드의 의도, 네이밍, 주변 코드와의 일관성처럼 맥락이 필요한 판단을 하지 못했습니다.',
+              'Linters and static checks can’t judge intent, whether a name actually makes sense, or whether a change fits the surrounding code.',
+              '린터나 정적 분석은 코드의 의도, 이름이 실제로 적절한지, 변경이 주변 코드와 어울리는지를 판단하지 못했습니다.',
             ),
             l(
-              'For the result to change behavior it had to land inside the PR, as inline comments reviewers already read, not in a separate tool.',
-              '리뷰 방식이 실제로 바뀌려면, 결과가 별도의 도구가 아니라 리뷰어가 이미 보고 있는 PR 안에 인라인 코멘트로 남아야 했습니다.',
+              'To actually get used, the feedback had to show up inside the PR as inline comments, where reviewers already look, not in a separate tool.',
+              '실제로 쓰이려면 리뷰 결과가 별도 도구가 아니라, 리뷰어가 이미 보고 있는 PR 안에 인라인 코멘트로 나타나야 했습니다.',
             ),
           ],
           solution: [
             l(
-              'Added the agent as a step in the Azure DevOps pipeline, triggered on PR create/update, so it runs where reviews already happen.',
-              'PR이 생성되거나 업데이트될 때 실행되는 단계로 에이전트를 Azure DevOps 파이프라인에 추가해, 리뷰가 원래 이루어지는 곳에서 바로 동작하게 했습니다.',
+              'Added the agent as a step in the Azure DevOps pipeline, triggered on PR create/update, so every PR gets reviewed automatically without anyone having to start it.',
+              'PR이 생성되거나 업데이트될 때 실행되는 단계로 에이전트를 Azure DevOps 파이프라인에 추가해, 누가 따로 실행하지 않아도 모든 PR이 자동으로 리뷰되게 했습니다.',
             ),
             l(
-              'Built the prompt in three parts: the rules (severity levels, our team’s review rules from markdown files in a code-review-hub repo, and the JSON output format), then this PR’s title, author description and changed-file list, and finally the diff itself. Only the last two change per PR.',
-              '프롬프트를 세 부분으로 구성했습니다. 규칙(심각도 단계, code-review-hub 저장소의 마크다운에 적힌 팀 리뷰 규칙, JSON 출력 형식), 이번 PR의 제목·작성자 설명·변경 파일 목록, 그리고 diff. PR마다 바뀌는 건 뒤의 두 부분뿐입니다.',
+              'Assembled each prompt from the team’s review rules, the PR’s metadata, and the diff with the code around it (details below).',
+              '프롬프트는 팀 리뷰 규칙, PR 메타데이터, 그리고 diff와 그 주변 코드로 구성했습니다(자세한 내용은 아래).',
             ),
             l(
               'Asked Claude for structured findings (file, line, severity, concrete suggestion) so the output can be processed programmatically.',
               'Claude가 파일, 라인, 심각도, 구체적인 수정 제안을 포함한 구조화된 형식으로 응답하도록 요청해, 결과를 코드로 바로 처리할 수 있게 했습니다.',
             ),
             l(
-              'Gave the agent two write-back tools through tool/function calling, "post an inline comment on a changed line" and "post a PR-level summary", both backed by the Azure DevOps REST API. The model decides where a finding belongs and the harness executes it.',
-              '에이전트에 tool/function calling으로 write-back 도구를 붙였습니다. "특정 변경 라인에 인라인 코멘트 달기", "PR 전체 요약 남기기" 두 가지 도구가 Azure DevOps REST API 위에서 동작하며, 어디에 어떤 지적을 남길지는 모델이 정하고 실행은 하네스가 합니다.',
+              'The Python script validates the findings and posts each one back through the Azure DevOps REST API as an inline comment on the changed line, plus one PR-level summary.',
+              'Python 스크립트가 지적 사항을 검증한 뒤, Azure DevOps REST API로 각 지적을 해당 변경 라인에 인라인 코멘트로 남기고 PR 전체 요약도 하나 남깁니다.',
             ),
             l(
               'Tested it against real pull requests and adjusted the prompt structure and severity thresholds until the comments were useful and the noise was low.',
@@ -133,8 +133,8 @@ export const entries: Entry[] = [
           ],
           promptDesign: [
             l(
-              'Part 1, the rules (prompt engineering): severity levels, our team’s review rules, and the JSON output format. The rules live in markdown files in a separate code-review-hub repo, not in the agent’s code, so changing how the agent reviews is a markdown edit and a PR. No redeploy, and anyone on the team can add a rule.',
-              '1부, 규칙(프롬프트 엔지니어링): 심각도 단계, 팀 리뷰 규칙, JSON 출력 형식. 규칙은 에이전트 코드가 아니라 별도 code-review-hub 저장소의 마크다운 파일에 있어서, 리뷰 방식을 바꾸는 건 마크다운 수정과 PR 하나로 끝납니다. 재배포가 없고 팀 누구나 규칙을 추가할 수 있습니다.',
+              'Part 1, the rules (prompt engineering): severity levels, our team’s review rules, what not to flag (things the linter already covers, generated files), and the JSON output format. The rules live in markdown files in a separate code-review-hub repo, not in the agent’s code, so changing how the agent reviews is a markdown edit and a PR. No redeploy, and anyone on the team can add a rule.',
+              '1부, 규칙(프롬프트 엔지니어링): 심각도 단계, 팀 리뷰 규칙, 지적하지 말아야 할 것(린터가 이미 잡는 항목, 자동 생성 파일), JSON 출력 형식. 규칙은 에이전트 코드가 아니라 별도 code-review-hub 저장소의 마크다운 파일에 있어서, 리뷰 방식을 바꾸는 건 마크다운 수정과 PR 하나로 끝납니다. 재배포가 없고 팀 누구나 규칙을 추가할 수 있습니다.',
             ),
             l(
               'Part 2, PR metadata: the title and the author’s description say why the change was made and what it is meant to do, and the changed-file list shows the shape of the change before the model reads a single diff line.',
@@ -145,7 +145,7 @@ export const entries: Entry[] = [
               '3부, diff와 주변 컨텍스트: diff만으로는 부족합니다. 바뀐 줄이 호출하는 메소드의 구현은 diff 밖에 있는 경우가 많으니까요. 그래서 변경된 코드가 호출하는 메소드의 구현, 변경 파일의 import와 시그니처도 함께 넣습니다.',
             ),
             l(
-              'Context engineering: deciding what goes into parts 2 and 3, and how much. The context window is a finite resource. Sending the whole repository would blow the token budget, bury the model in irrelevant code, and add latency and cost, so the agent selects only what this PR needs.',
+              'Context engineering: deciding what goes into parts 2 and 3, and how much. The context window is a finite resource. Sending the whole repository would exceed it, bury the model in irrelevant code, and add latency and cost, so the agent selects only what this PR needs.',
               '컨텍스트 엔지니어링: 2부와 3부에 무엇을 얼마나 넣을지 정하는 일입니다. 컨텍스트 윈도우는 유한한 자원입니다. 저장소 전체를 보내면 토큰이 넘치고, 무관한 코드에 묻히고, 지연과 비용이 늘어나기 때문에 이 PR에 필요한 것만 골라 넣습니다.',
             ),
             l(
@@ -153,8 +153,8 @@ export const entries: Entry[] = [
               '큰 diff는 청크로 나누되 모든 청크에 공통 헤더(PR 요약과 전체 파일 목록)를 붙여서, 한 청크에서 나온 지적이 다른 청크의 코드를 가리킬 수 있게 합니다.',
             ),
             l(
-              'Output contract: strict JSON validated before posting; malformed output triggers a limited retry instead of a bad comment. Explicit negative rules (what the linter already covers, generated files) keep the agent out of noise.',
-              '출력 형식은 엄격한 JSON으로 고정하고 게시 전에 검증합니다. 형식이 깨지면 잘못된 코멘트 대신 제한된 횟수만 재시도합니다. 린터가 이미 잡는 항목이나 자동 생성 파일처럼 지적하지 말아야 할 것도 명시적으로 제외합니다.',
+              'Output contract: strict JSON, validated before anything is posted. Malformed output triggers a limited retry instead of a bad comment.',
+              '출력 형식: 엄격한 JSON으로 고정하고 게시 전에 검증합니다. 형식이 깨지면 잘못된 코멘트를 남기는 대신 제한된 횟수만 재시도합니다.',
             ),
           ],
           result: [
@@ -163,8 +163,8 @@ export const entries: Entry[] = [
               '반복적인 1차 리뷰가 모든 PR에서 자동으로 이루어지고, 리뷰어는 중요한 라인에 이미 코멘트가 달린 상태에서 리뷰를 시작합니다.',
             ),
             l(
-              'The pattern (pipeline hook → context assembly → structured LLM output → write-back) is reusable for other automations on the same platform.',
-              '파이프라인 훅 → 컨텍스트 구성 → 구조화된 LLM 출력 → write-back으로 이어지는 패턴은 같은 플랫폼의 다른 자동화에도 그대로 재사용할 수 있습니다.',
+              'Every PR is checked against the same written team rules, so the first pass is consistent no matter who reviews it, and the team can keep tuning those rules without touching the agent’s code.',
+              '모든 PR이 같은 팀 규칙 문서를 기준으로 검토되어 누가 리뷰하든 1차 리뷰가 일관되고, 팀은 에이전트 코드를 건드리지 않고도 규칙을 계속 다듬을 수 있습니다.',
             ),
           ],
         },
