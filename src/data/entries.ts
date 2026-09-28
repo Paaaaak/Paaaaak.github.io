@@ -115,8 +115,8 @@ export const entries: Entry[] = [
               'PR이 생성되거나 업데이트될 때 실행되는 단계로 에이전트를 Azure DevOps 파이프라인에 추가해, 리뷰가 원래 이루어지는 곳에서 바로 동작하게 했습니다.',
             ),
             l(
-              'Assembled the prompt from the PR diff plus repo-specific context (conventions, touched modules, PR metadata), and chunked large diffs so cross-file references survive.',
-              'PR diff에 저장소 컨벤션, 변경된 모듈, PR 메타데이터 같은 컨텍스트를 함께 담아 프롬프트를 구성했고, 큰 diff는 파일 간 참조가 끊어지지 않도록 나누어 처리했습니다.',
+              'Built the prompt in three parts: the rules (severity levels, our team’s review rules from markdown files in a code-review-hub repo, and the JSON output format), then this PR’s title, author description and changed-file list, and finally the diff itself. Only the last two change per PR.',
+              '프롬프트를 세 부분으로 구성했습니다. 규칙(심각도 단계, code-review-hub 저장소의 마크다운에 적힌 팀 리뷰 규칙, JSON 출력 형식), 이번 PR의 제목·작성자 설명·변경 파일 목록, 그리고 diff. PR마다 바뀌는 건 뒤의 두 부분뿐입니다.',
             ),
             l(
               'Asked Claude for structured findings (file, line, severity, concrete suggestion) so the output can be processed programmatically.',
@@ -133,24 +133,28 @@ export const entries: Entry[] = [
           ],
           promptDesign: [
             l(
-              'Layered prompt: a stable system layer (reviewer role, severity rubric, repo conventions), a task layer (PR title, description, touched modules), and a data layer (diff chunks).',
-              '프롬프트를 세 층으로 나눴습니다. 고정된 시스템 층(리뷰어 역할, 심각도 기준, 저장소 컨벤션), 작업 층(PR 제목·설명·변경 모듈), 데이터 층(diff 조각). 지시는 그대로 두고 데이터만 PR마다 바뀝니다.',
+              'Prompt engineering: the rules live in markdown files in a separate code-review-hub repo, not in the agent’s code. To change how the agent reviews, you edit a markdown file and open a PR, and the first part of the prompt updates itself. No redeploy, and anyone on the team can contribute a rule.',
+              '프롬프트 엔지니어링: 규칙은 에이전트 코드가 아니라 별도 code-review-hub 저장소의 마크다운 파일에 있습니다. 리뷰 방식을 바꾸고 싶으면 마크다운을 고쳐 PR을 올리면 프롬프트의 첫 부분이 자동으로 바뀝니다. 재배포가 없고, 팀 누구나 규칙을 추가할 수 있습니다.',
             ),
             l(
-              'Context assembly under a token budget: signatures and imports of touched files rather than whole files, so the model sees intent without noise.',
-              '토큰 예산 안에서 컨텍스트를 구성합니다. 파일 전체 대신 변경된 파일의 함수 시그니처와 import만 넣어, 모델이 불필요한 정보 없이 의도를 파악할 수 있게 했습니다.',
+              'Context engineering: deciding what goes into the second and third parts, and how much. The context window is a finite resource, so instead of sending the whole repository (too many tokens, mostly irrelevant, slower and more expensive), the agent selects only what this PR needs.',
+              '컨텍스트 엔지니어링: 두 번째와 세 번째 부분에 무엇을 얼마나 넣을지 정하는 일입니다. 컨텍스트 윈도우는 유한한 자원이라, 저장소 전체를 보내는 대신(토큰 초과, 대부분 무관한 정보, 느리고 비쌈) 이 PR을 리뷰하는 데 필요한 정보만 골라 넣습니다.',
             ),
             l(
-              'Chunking with a shared reference header so a finding in one chunk can still point at code in another.',
-              'diff를 나눌 때 모든 조각에 공통 참조 헤더를 넣어, 한 조각에서 나온 지적이 다른 조각의 코드를 가리킬 수 있게 했습니다.',
+              'PR metadata is part of that context: the title and description say why the change was made and what it is meant to do, and the changed-file list shows the shape of the change before the model reads a single diff line.',
+              'PR 메타데이터도 컨텍스트의 일부입니다. 제목과 설명은 왜, 무엇을 바꿨는지를 알려주고, 변경 파일 목록은 diff를 읽기 전에 변경의 윤곽을 보여줍니다.',
             ),
             l(
-              'Output contract: strict JSON validated before posting; malformed output triggers a constrained retry instead of a bad comment.',
-              '출력 형식을 엄격한 JSON으로 고정하고 게시 전에 검증합니다. 형식이 깨지면 잘못된 코멘트를 남기는 대신 제한된 횟수만큼 다시 시도합니다.',
+              'The diff alone is not enough either: a changed line often calls a method whose implementation is outside the diff. So the agent also includes surrounding context, such as the implementation of methods the changed code calls and the imports and signatures of touched files.',
+              'diff만으로도 부족합니다. 바뀐 줄이 호출하는 메소드의 구현은 diff 밖에 있는 경우가 많으니까요. 그래서 변경된 코드가 호출하는 메소드의 구현, 변경 파일의 import와 시그니처 같은 주변 컨텍스트도 함께 넣습니다.',
             ),
             l(
-              'Explicit negative constraints (what the linter already covers, generated files) to keep the agent out of noise.',
-              '린터가 이미 잡아내는 항목이나 자동 생성 파일처럼 지적하지 말아야 할 것을 명시적으로 제외해 불필요한 코멘트를 막았습니다.',
+              'Large diffs are split into chunks that share a common header (PR summary and full file list), so a finding in one chunk can still point at code in another.',
+              '큰 diff는 청크로 나누되 모든 청크에 공통 헤더(PR 요약과 전체 파일 목록)를 붙여서, 한 청크에서 나온 지적이 다른 청크의 코드를 가리킬 수 있게 합니다.',
+            ),
+            l(
+              'Output contract: strict JSON validated before posting; malformed output triggers a limited retry instead of a bad comment. Explicit negative rules (what the linter already covers, generated files) keep the agent out of noise.',
+              '출력 형식은 엄격한 JSON으로 고정하고 게시 전에 검증합니다. 형식이 깨지면 잘못된 코멘트 대신 제한된 횟수만 재시도합니다. 린터가 이미 잡는 항목이나 자동 생성 파일처럼 지적하지 말아야 할 것도 명시적으로 제외합니다.',
             ),
           ],
           result: [
