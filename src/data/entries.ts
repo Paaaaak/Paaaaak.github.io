@@ -133,20 +133,20 @@ export const entries: Entry[] = [
           ],
           promptDesign: [
             l(
-              'Prompt engineering: the rules live in markdown files in a separate code-review-hub repo, not in the agent’s code. To change how the agent reviews, you edit a markdown file and open a PR, and the first part of the prompt updates itself. No redeploy, and anyone on the team can contribute a rule.',
-              '프롬프트 엔지니어링: 규칙은 에이전트 코드가 아니라 별도 code-review-hub 저장소의 마크다운 파일에 있습니다. 리뷰 방식을 바꾸고 싶으면 마크다운을 고쳐 PR을 올리면 프롬프트의 첫 부분이 자동으로 바뀝니다. 재배포가 없고, 팀 누구나 규칙을 추가할 수 있습니다.',
+              'Part 1, the rules (prompt engineering): severity levels, our team’s review rules, and the JSON output format. The rules live in markdown files in a separate code-review-hub repo, not in the agent’s code, so changing how the agent reviews is a markdown edit and a PR. No redeploy, and anyone on the team can add a rule.',
+              '1부, 규칙(프롬프트 엔지니어링): 심각도 단계, 팀 리뷰 규칙, JSON 출력 형식. 규칙은 에이전트 코드가 아니라 별도 code-review-hub 저장소의 마크다운 파일에 있어서, 리뷰 방식을 바꾸는 건 마크다운 수정과 PR 하나로 끝납니다. 재배포가 없고 팀 누구나 규칙을 추가할 수 있습니다.',
             ),
             l(
-              'Context engineering: deciding what goes into the second and third parts, and how much. The context window is a finite resource, so instead of sending the whole repository (too many tokens, mostly irrelevant, slower and more expensive), the agent selects only what this PR needs.',
-              '컨텍스트 엔지니어링: 두 번째와 세 번째 부분에 무엇을 얼마나 넣을지 정하는 일입니다. 컨텍스트 윈도우는 유한한 자원이라, 저장소 전체를 보내는 대신(토큰 초과, 대부분 무관한 정보, 느리고 비쌈) 이 PR을 리뷰하는 데 필요한 정보만 골라 넣습니다.',
+              'Part 2, PR metadata: the title and the author’s description say why the change was made and what it is meant to do, and the changed-file list shows the shape of the change before the model reads a single diff line.',
+              '2부, PR 메타데이터: 제목과 작성자의 설명은 왜, 무엇을 바꿨는지를 알려주고, 변경 파일 목록은 diff를 읽기 전에 변경의 윤곽을 보여줍니다.',
             ),
             l(
-              'PR metadata is part of that context: the title and description say why the change was made and what it is meant to do, and the changed-file list shows the shape of the change before the model reads a single diff line.',
-              'PR 메타데이터도 컨텍스트의 일부입니다. 제목과 설명은 왜, 무엇을 바꿨는지를 알려주고, 변경 파일 목록은 diff를 읽기 전에 변경의 윤곽을 보여줍니다.',
+              'Part 3, the diff plus surrounding context: the diff alone is not enough, because a changed line often calls a method whose implementation is outside the diff. So the agent also includes the implementation of methods the changed code calls, and the imports and signatures of touched files.',
+              '3부, diff와 주변 컨텍스트: diff만으로는 부족합니다. 바뀐 줄이 호출하는 메소드의 구현은 diff 밖에 있는 경우가 많으니까요. 그래서 변경된 코드가 호출하는 메소드의 구현, 변경 파일의 import와 시그니처도 함께 넣습니다.',
             ),
             l(
-              'The diff alone is not enough either: a changed line often calls a method whose implementation is outside the diff. So the agent also includes surrounding context, such as the implementation of methods the changed code calls and the imports and signatures of touched files.',
-              'diff만으로도 부족합니다. 바뀐 줄이 호출하는 메소드의 구현은 diff 밖에 있는 경우가 많으니까요. 그래서 변경된 코드가 호출하는 메소드의 구현, 변경 파일의 import와 시그니처 같은 주변 컨텍스트도 함께 넣습니다.',
+              'Context engineering: deciding what goes into parts 2 and 3, and how much. The context window is a finite resource. Sending the whole repository would blow the token budget, bury the model in irrelevant code, and add latency and cost, so the agent selects only what this PR needs.',
+              '컨텍스트 엔지니어링: 2부와 3부에 무엇을 얼마나 넣을지 정하는 일입니다. 컨텍스트 윈도우는 유한한 자원입니다. 저장소 전체를 보내면 토큰이 넘치고, 무관한 코드에 묻히고, 지연과 비용이 늘어나기 때문에 이 PR에 필요한 것만 골라 넣습니다.',
             ),
             l(
               'Large diffs are split into chunks that share a common header (PR summary and full file list), so a finding in one chunk can still point at code in another.',
