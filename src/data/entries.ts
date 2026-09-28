@@ -309,8 +309,8 @@ export const entries: Entry[] = [
               'OK캐쉬백 광고 리워드 시스템은 여러 광고 업체의 S2S postback 요청을 받아 검증한 뒤 포인트를 지급하고 있었습니다.',
             ),
             l(
-              'When a campaign spiked traffic, or a vendor sent abnormal requests repeatedly, CPU/memory on Spring instances climbed and some instances stopped responding.',
-              '특정 캠페인에서 요청이 순간적으로 급증하거나 외부 광고사의 비정상 요청이 반복되면 Spring 인스턴스의 CPU/메모리 사용량이 올라가며 일부 인스턴스가 응답하지 않았습니다.',
+              'Repeated or abnormal postbacks from a vendor, or a fault specific to one instance, could make a single Pod stop responding.',
+              '광고사의 반복적이거나 비정상적인 postback, 또는 특정 인스턴스에만 생긴 문제로 Pod 하나가 응답하지 않게 되는 일이 있었습니다.',
             ),
             l(
               'A broken instance kept receiving traffic, so reward API timeouts grew and even legitimate point grants were affected.',
