@@ -465,6 +465,7 @@ export const entries: Entry[] = [
     accent: '#1e3a8a',
     accentSoft: '#dbeafe',
     tags: [
+      l('Data Pipelines', '데이터 파이프라인'),
       l('On-site Requirements Discovery', '현장 요구사항 발굴'),
       l('Legacy Migration → Production', '레거시 마이그레이션 → 프로덕션'),
       l('Retail & Logistics Systems', '리테일 & 물류 시스템'),
