@@ -488,7 +488,7 @@ export const entries: Entry[] = [
                 { id: 'erp', label: l('ERP sync', 'ERP 동기화'), sub: l('product master', '상품 마스터'), accent: true },
                 { id: 'reader', label: l('Reader', 'Reader'), sub: l('FlatFileItemReader', 'FlatFileItemReader'), accent: true },
                 { id: 'processor', label: l('Processor', 'Processor'), sub: l('validate · error table', '검증 · 오류 테이블'), accent: true },
-                { id: 'writer', label: l('Writer', 'Writer'), sub: l('bulk insert · chunk = tx', '일괄 insert · 청크 = 트랜잭션'), accent: true },
+                { id: 'writer', label: l('Writer', 'Writer'), sub: l('JDBC batch · chunk = tx', 'JDBC 배치 · 청크 = 트랜잭션'), accent: true },
               ],
               [
                 { id: 'summary', label: l('Summary tables', '집계 테이블'), sub: l('daily · store · category', '일별 · 매장 · 카테고리'), accent: true },
@@ -529,8 +529,8 @@ export const entries: Entry[] = [
               'ItemProcessor에서 레코드마다 필수값, 날짜·금액 포맷, 매장·영수증·라인 번호 기준 중복, ERP 상품 마스터 기준 SKU 유효성, 환불과 원거래 매칭을 검증합니다. 실패한 레코드는 잡을 멈추는 대신 오류 테이블로 보내고, 원거래가 아직 안 들어온 환불은 다음 실행에서 다시 확인합니다.',
             ),
             l(
-              'An **ItemWriter bulk-inserts** the valid records into MSSQL. **Each chunk is its own transaction**, so a failure rolls back only that chunk and the partition **restarts from the last commit**.',
-              'ItemWriter가 검증을 통과한 데이터를 MSSQL에 일괄 insert합니다. 청크 하나가 트랜잭션 하나라서 실패해도 그 청크만 롤백되고, 파티션은 마지막 커밋 지점부터 재시작합니다.',
+              'The writer receives the valid records in chunks and uses **JdbcBatchItemWriter** to **batch-insert** them into MSSQL. **Each chunk is its own transaction**, so a failure rolls back only that chunk and the partition **restarts from the last commit**.',
+              'Writer는 검증을 통과한 데이터를 청크 단위로 받아 JdbcBatchItemWriter로 MSSQL에 배치 insert합니다. 청크 하나가 트랜잭션 하나라서 실패해도 그 청크만 롤백되고, 파티션은 마지막 커밋 지점부터 재시작합니다.',
             ),
             l(
               'Step 3 updates the **daily per-store summary tables**, and recalculates any past date that received late records, so the numbers correct themselves the next morning.',
