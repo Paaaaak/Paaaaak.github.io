@@ -553,8 +553,8 @@ export const entries: Entry[] = [
         detail: {
           context: [
             l(
-              'Nexol System builds and runs the retail and logistics systems for Samsonite Korea, including the **EPOS (point-of-sale) system used in 500+ stores** and the **warehouse management system**. I developed and maintained both, on Spring Boot.',
-              '넥솔시스템은 쌤소나이트 코리아의 리테일·물류 시스템을 개발하고 운영하는 회사입니다. 전국 500여 개 매장에서 쓰는 EPOS(판매 시점 관리)와 창고 관리 시스템이 여기 포함되고, 저는 둘 다 Spring Boot 기반으로 개발·운영했습니다.',
+              'Nexol System builds and runs the retail and logistics systems for Samsonite Korea, including the **EPOS system used in 500+ stores** and the **warehouse management system**. I developed and maintained both, on Spring Boot.',
+              '넥솔시스템은 쌤소나이트 코리아의 리테일·물류 시스템을 개발하고 운영하는 회사입니다. 전국 500여 개 매장에서 쓰는 EPOS와 창고 관리 시스템이 여기 포함되고, 저는 둘 다 Spring Boot 기반으로 개발·운영했습니다.',
             ),
           ],
           did: [
