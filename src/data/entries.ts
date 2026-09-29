@@ -182,27 +182,27 @@ export const entries: Entry[] = [
         detail: {
           context: [
             l(
-              'The existing recommendation system only knew which products were bought together. It had no way to say that two products are similar in themselves, so a customer looking at one fragrance would not see others that smell alike unless people had already bought them together.',
+              'The existing recommendation system only knew **which products were bought together**. It had no way to say that two products are similar in themselves, so a customer looking at one fragrance would **not see others that smell alike** unless people had already bought them together.',
               '기존 추천은 "함께 구매된 상품"만 알고 있었습니다. 상품 자체가 서로 비슷하다는 걸 판단할 수 없어서, 어떤 향수를 보고 있는 고객에게 비슷한 향의 상품을 보여주려면 누군가 이미 그 둘을 함께 산 기록이 있어야 했습니다.',
             ),
           ],
           did: [
             l(
-              'Turned each product’s name, description and attributes (scent notes, brand, concentration, gender) into an embedding, a list of numbers that captures its meaning, using the Azure OpenAI text-embedding-3-small model, and stored the vectors in an Azure AI Search index that supports vector search.',
+              'Turned each product’s name, description and attributes (scent notes, brand, concentration, gender) into an **embedding**, a list of numbers that captures its meaning, using the **Azure OpenAI text-embedding-3-small** model, and stored the vectors in an **Azure AI Search** index that supports vector search.',
               '각 상품의 이름, 설명, 속성(향 노트, 브랜드, 농도, 성별)을 Azure OpenAI의 text-embedding-3-small 모델로 임베딩(상품의 의미를 숫자 벡터로 표현한 것)으로 바꾸고, 벡터 검색을 지원하는 Azure AI Search 인덱스에 저장했습니다.',
             ),
             l(
-              'Built the service that takes a product, finds the closest vectors in the index, and returns them as "similar products", with basic filters such as in-stock only.',
+              'Built the service that takes a product, **finds the closest vectors** in the index, and returns them as "similar products", with basic filters such as in-stock only.',
               '상품 하나를 받으면 인덱스에서 가장 가까운 벡터들을 찾아 "비슷한 상품"으로 돌려주는 서비스를 만들었습니다. 재고 있는 상품만 보여주는 것 같은 기본 필터도 넣었습니다.',
             ),
             l(
-              'Wrote the job that keeps the index in step with the product catalog, so new or changed products get embedded and added without a manual step.',
+              'Wrote the job that keeps the index in step with the product catalog, so **new or changed products get embedded and added** without a manual step.',
               '상품 카탈로그가 바뀌면 인덱스도 따라가도록, 새 상품이나 변경된 상품을 자동으로 임베딩해서 넣는 작업을 만들었습니다.',
             ),
           ],
           result: [
             l(
-              'Product pages can now recommend items that are similar in content, not only in purchase history, and the service runs alongside the existing recommendation path in production.',
+              'Product pages can now recommend items that are **similar in content, not only in purchase history**, and the service runs alongside the existing recommendation path in production.',
               '이제 상품 페이지에서 구매 이력이 아니라 상품 내용이 비슷한 것도 추천할 수 있고, 이 서비스는 기존 추천과 함께 프로덕션에서 동작하고 있습니다.',
             ),
           ],
@@ -217,23 +217,23 @@ export const entries: Entry[] = [
         detail: {
           context: [
             l(
-              'The existing recommendation model (SAR, a Microsoft algorithm based on which products are bought together) had to be retrained by hand. Someone pulled the latest order data, ran the training, and uploaded the result, so it happened irregularly and new products took a long time to show up in recommendations.',
+              'The existing recommendation model (SAR, a Microsoft algorithm based on which products are bought together) had to be **retrained by hand**. Someone pulled the latest order data, ran the training, and uploaded the result, so it happened irregularly and **new products took a long time to show up** in recommendations.',
               '기존 추천 모델(SAR, 함께 구매된 상품 기반으로 동작하는 마이크로소프트 알고리즘)은 사람이 직접 재학습시켜야 했습니다. 최신 주문 데이터를 뽑아서 학습을 돌리고 결과를 올리는 과정이 손으로 이루어져서 주기가 불규칙했고, 신상품이 추천에 반영되기까지 오래 걸렸습니다.',
             ),
           ],
           did: [
             l(
-              'Moved the whole retraining run into an Azure Function that runs on a schedule: it pulls recent order data, retrains the SAR model, and publishes the new model where the recommendation service reads it.',
+              'Moved the whole retraining run into an **Azure Function that runs on a schedule**: it **pulls recent order data, retrains the SAR model, and publishes the new model** where the recommendation service reads it.',
               '재학습 과정 전체를 스케줄에 따라 실행되는 Azure Function으로 옮겼습니다. 최근 주문 데이터를 가져와 SAR 모델을 다시 학습하고, 새 모델을 추천 서비스가 읽는 위치에 올리는 것까지 한 번에 처리합니다.',
             ),
             l(
-              'Added a simple check before publishing so a run that produced an empty or broken model leaves the previous one in place instead of replacing it.',
+              'Added a simple check before publishing so a run that produced an empty or broken model **leaves the previous one in place** instead of replacing it.',
               '새 모델을 올리기 전에 간단한 검증을 넣어서, 결과가 비어 있거나 잘못 나온 경우에는 이전 모델을 그대로 두도록 했습니다.',
             ),
           ],
           result: [
             l(
-              'Retraining now happens automatically on a fixed schedule with no one having to run it, and together with the vector service this modernized the production recommendation platform.',
+              'Retraining now **happens automatically on a fixed schedule** with no one having to run it, and together with the vector service this **modernized the production recommendation platform**.',
               '재학습이 정해진 주기에 자동으로 돌아가고 사람이 손댈 일이 없어졌습니다. 벡터 추천 서비스와 함께, 프로덕션 추천 플랫폼을 현대화한 작업입니다.',
             ),
           ],
