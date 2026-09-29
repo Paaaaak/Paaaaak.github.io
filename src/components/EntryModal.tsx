@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { entries, type Entry, type Story, type StoryDetail } from '../data/entries'
 import { ui, useLang, type L } from '../i18n'
 import FlowDiagram from './FlowDiagram'
+import SpringBatchDiagram from './SpringBatchDiagram'
 
 /** 문장 안의 **강조** 표시를 <strong>으로 렌더링 */
 function rich(text: string) {
@@ -25,7 +26,7 @@ function CaseStudyBody({ story }: { story: Story }) {
         <span className="case__step">01</span> {t(ui.entry.architecture)}
       </h4>
       <div className="case__diagram">
-        <FlowDiagram spec={cs.architecture} />
+        {cs.customDiagram === 'spring-batch' ? <SpringBatchDiagram /> : <FlowDiagram spec={cs.architecture} />}
       </div>
       {cs.architectureNote && <p className="case__note">{rich(t(cs.architectureNote))}</p>}
 

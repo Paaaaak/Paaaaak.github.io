@@ -4,6 +4,8 @@ import type { FlowDiagramSpec } from '../components/FlowDiagram'
 /** 4단계 케이스 스터디: Architecture → Problem → Solution → Result */
 export type CaseStudy = {
   architecture: FlowDiagramSpec
+  /** 지정하면 FlowDiagram 대신 전용 그림을 렌더링 */
+  customDiagram?: 'spring-batch'
   /** 다이어그램 아래 한 줄 설명 */
   architectureNote?: L
   problem: L[]
@@ -478,6 +480,7 @@ export const entries: Entry[] = [
         title: l('Sales data pipeline for 500 stores, from nightly batch to HQ dashboard', '500개 매장 판매 데이터 파이프라인, 야간 배치에서 본사 대시보드까지'),
         stack: ['Spring Batch', 'MSSQL', 'ERP integration', 'Spring Cache', 'SQL optimization'],
         caseStudy: {
+          customDiagram: 'spring-batch',
           architecture: {
             rows: [
               [
@@ -498,8 +501,8 @@ export const entries: Entry[] = [
             rowLinks: [l('steps 1–2', 'Step 1–2'), l('step 3: aggregate', 'Step 3: 집계')],
           },
           architectureNote: l(
-            'Colored boxes are the parts I built. Each store runs as its own partition, so one store’s broken file fails only that partition, and bad records go to an error table to be retried on the next run.',
-            '색이 칠해진 박스가 제가 만든 부분입니다. 매장마다 별도 파티션으로 돌기 때문에 한 매장의 파일이 깨져도 그 파티션만 실패하고, 잘못된 레코드는 오류 테이블로 가서 다음 실행에서 다시 처리됩니다.',
+            'Colored boxes are the parts I built. Each store file becomes its own worker step with its own ExecutionContext and counts, saved to the JobRepository on every commit, so a failure rolls back one chunk of one store and a restart resumes from the last commit.',
+            '색이 칠해진 박스가 제가 만든 부분입니다. 매장 파일마다 별도 worker step과 ExecutionContext·처리 건수가 생기고 커밋마다 JobRepository에 저장되므로, 실패하면 한 매장의 한 청크만 롤백되고 재시작하면 마지막 커밋 지점부터 이어서 처리합니다.',
           ),
           problem: [
             l(
@@ -507,8 +510,8 @@ export const entries: Entry[] = [
               '쌤소나이트코리아는 백화점, 면세점, 아울렛까지 합쳐 전국에 약 500개 매장이 있었고, 본사는 모든 매장의 판매·환불 데이터를 한곳에서 정확하게 봐야 했습니다.',
             ),
             l(
-              'Each store sent its **daily transactions as a CSV file**, about **3,000 sales and 200 refunds a day** across all stores. Files could have missing fields, wrong formats, duplicates, or refunds whose original sale hadn’t arrived yet, and **one bad file could not be allowed to block the other 499 stores**.',
-              '매장마다 하루 거래를 CSV 파일로 보냈고, 전체 매장을 합쳐 하루 판매 약 3,000건, 환불 약 200건 규모였습니다. 필수값 누락, 포맷 오류, 중복, 원거래가 아직 도착하지 않은 환불 같은 문제가 섞여 들어올 수 있었고, 파일 하나 때문에 나머지 499개 매장 처리가 막히면 안 됐습니다.',
+              'Each store sent its **daily transactions as a CSV file**, about **3,000 sales and 200 refunds a day** across all stores. Files could have missing fields, wrong formats, duplicates, or refunds whose original sale hadn’t arrived yet.',
+              '매장마다 하루 거래를 CSV 파일로 보냈고, 전체 매장을 합쳐 하루 판매 약 3,000건, 환불 약 200건 규모였습니다. 필수값 누락, 포맷 오류, 중복, 원거래가 아직 도착하지 않은 환불 같은 문제가 섞여 들어올 수 있었습니다.',
             ),
             l(
               'Over time the dashboard slowed down. Summaries existed only per day and store, so comparisons by product and category, such as year-over-year, still ran against the raw transaction table, which had grown to **several million rows**. Every morning HQ and store managers opened the dashboard at the same time and ran those **same heavy queries** again and again.',

@@ -737,6 +737,12 @@ ul, ol { margin: 0; padding: 0; }
 .flow__arrowhead--accent { fill: var(--accent); }
 .flow__edge-label { font: 500 10.5px/1 var(--mono); fill: var(--muted); }
 .flow__edge-label--accent { fill: var(--accent); }
+.sb__container { fill: color-mix(in srgb, var(--accent) 3%, transparent); stroke: color-mix(in srgb, var(--accent) 35%, var(--border)); stroke-width: 1; stroke-dasharray: 6 4; }
+.sb__link { stroke: var(--border-strong); stroke-width: 1.2; stroke-dasharray: 3 3; }
+.sb__band { fill: color-mix(in srgb, var(--accent) 12%, white); stroke: var(--accent); stroke-width: 1; }
+.sb__band-text { font: 700 10.5px/1 var(--mono); fill: var(--accent); letter-spacing: .04em; }
+.sb__fail-text { font: 500 10.5px/1 var(--mono); fill: #b91c1c; }
+.sb__arrowhead-bad { fill: #dc2626; }
 .flow__row-title { font: 600 11px/1 var(--mono); fill: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
 .case__note { margin-top: 10px; font-size: 13.5px; color: var(--muted); }
 
