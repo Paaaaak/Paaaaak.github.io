@@ -507,12 +507,12 @@ export const entries: Entry[] = [
               '쌤소나이트코리아는 백화점, 면세점, 아울렛까지 합쳐 전국에 약 500개 매장이 있었고, 본사는 모든 매장의 판매·환불 데이터를 한곳에서 정확하게 봐야 했습니다.',
             ),
             l(
-              'Each store sent its **daily transactions as a CSV file**, around a thousand records a day across all stores. Files could have missing fields, wrong formats, duplicates, or refunds whose original sale hadn’t arrived yet, and **one bad file could not be allowed to block the other 499 stores**.',
-              '매장마다 하루 거래를 CSV 파일로 보냈고, 전체 매장을 합쳐 하루 약 천 건 규모였습니다. 필수값 누락, 포맷 오류, 중복, 원거래가 아직 도착하지 않은 환불 같은 문제가 섞여 들어올 수 있었고, 파일 하나 때문에 나머지 499개 매장 처리가 막히면 안 됐습니다.',
+              'Each store sent its **daily transactions as a CSV file**, about **3,000 sales and 200 refunds a day** across all stores. Files could have missing fields, wrong formats, duplicates, or refunds whose original sale hadn’t arrived yet, and **one bad file could not be allowed to block the other 499 stores**.',
+              '매장마다 하루 거래를 CSV 파일로 보냈고, 전체 매장을 합쳐 하루 판매 약 3,000건, 환불 약 200건 규모였습니다. 필수값 누락, 포맷 오류, 중복, 원거래가 아직 도착하지 않은 환불 같은 문제가 섞여 들어올 수 있었고, 파일 하나 때문에 나머지 499개 매장 처리가 막히면 안 됐습니다.',
             ),
             l(
-              'Over time the dashboard slowed down. Summaries existed only per day and store, so comparisons by product and category, such as year-over-year, still ran against the raw transaction table, which had grown past **a million rows**. Every morning HQ and store managers opened the dashboard at the same time and ran those **same heavy queries** again and again.',
-              '시간이 지나며 대시보드가 느려졌습니다. 집계는 일별·매장별로만 있어서 전년 대비 같은 상품·카테고리별 비교는 여전히 원본 거래 테이블을 읽었는데, 이 테이블이 백만 건을 넘어섰습니다. 아침마다 본사와 매장 관리자들이 동시에 대시보드를 열어 같은 무거운 쿼리가 반복 실행됐습니다.',
+              'Over time the dashboard slowed down. Summaries existed only per day and store, so comparisons by product and category, such as year-over-year, still ran against the raw transaction table, which had grown to **several million rows**. Every morning HQ and store managers opened the dashboard at the same time and ran those **same heavy queries** again and again.',
+              '시간이 지나며 대시보드가 느려졌습니다. 집계는 일별·매장별로만 있어서 전년 대비 같은 상품·카테고리별 비교는 여전히 원본 거래 테이블을 읽었는데, 이 테이블이 수백만 건으로 커졌습니다. 아침마다 본사와 매장 관리자들이 동시에 대시보드를 열어 같은 무거운 쿼리가 반복 실행됐습니다.',
             ),
           ],
           solution: [
