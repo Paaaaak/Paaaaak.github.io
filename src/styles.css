@@ -659,6 +659,7 @@ ul, ol { margin: 0; padding: 0; }
 .modal__text { color: var(--text-2); }
 .modal__list { list-style: none; display: grid; gap: 10px; }
 .modal__list li { position: relative; padding-left: 20px; color: var(--text-2); }
+.modal__list strong, .story__bullets strong, .case__steps strong, .case__note strong { color: var(--text); font-weight: 650; }
 .modal__list li::before {
   content: ''; position: absolute; left: 0; top: 11px;
   width: 6px; height: 6px; border-radius: 50%; background: var(--accent);

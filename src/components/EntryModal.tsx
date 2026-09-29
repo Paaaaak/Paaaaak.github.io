@@ -3,6 +3,13 @@ import { entries, type Entry, type Story, type StoryDetail } from '../data/entri
 import { ui, useLang, type L } from '../i18n'
 import FlowDiagram from './FlowDiagram'
 
+/** 문장 안의 **강조** 표시를 <strong>으로 렌더링 */
+function rich(text: string) {
+  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+    part.startsWith('**') && part.endsWith('**') ? <strong key={i}>{part.slice(2, -2)}</strong> : part,
+  )
+}
+
 type Props = {
   entry: Entry | null
   onClose: () => void
@@ -20,14 +27,14 @@ function CaseStudyBody({ story }: { story: Story }) {
       <div className="case__diagram">
         <FlowDiagram spec={cs.architecture} />
       </div>
-      {cs.architectureNote && <p className="case__note">{t(cs.architectureNote)}</p>}
+      {cs.architectureNote && <p className="case__note">{rich(t(cs.architectureNote))}</p>}
 
       <h4 className="modal__label">
         <span className="case__step">02</span> {t(ui.entry.problem)}
       </h4>
       <ul className="modal__list">
         {cs.problem.map((h, i) => (
-          <li key={i}>{t(h)}</li>
+          <li key={i}>{rich(t(h))}</li>
         ))}
       </ul>
 
@@ -36,7 +43,7 @@ function CaseStudyBody({ story }: { story: Story }) {
       </h4>
       <ol className="case__steps">
         {cs.solution.map((h, i) => (
-          <li key={i}>{t(h)}</li>
+          <li key={i}>{rich(t(h))}</li>
         ))}
       </ol>
 
@@ -45,7 +52,7 @@ function CaseStudyBody({ story }: { story: Story }) {
           <p className="case__callout-title">{t(ui.entry.promptDesign)}</p>
           <ul className="modal__list">
             {cs.promptDesign.map((h, i) => (
-              <li key={i}>{t(h)}</li>
+              <li key={i}>{rich(t(h))}</li>
             ))}
           </ul>
         </aside>
@@ -56,7 +63,7 @@ function CaseStudyBody({ story }: { story: Story }) {
       </h4>
       <ul className="modal__list case__results">
         {cs.result.map((h, i) => (
-          <li key={i}>{t(h)}</li>
+          <li key={i}>{rich(t(h))}</li>
         ))}
       </ul>
     </div>
@@ -70,7 +77,7 @@ function DetailBody({ detail }: { detail: StoryDetail }) {
       <h4 className={`modal__label ${first ? 'modal__label--first' : ''}`}>{t(label)}</h4>
       <ul className="modal__list">
         {items.map((h, i) => (
-          <li key={i}>{t(h)}</li>
+          <li key={i}>{rich(t(h))}</li>
         ))}
       </ul>
     </>
@@ -225,7 +232,7 @@ export default function EntryModal({ entry, onClose, onNavigate }: Props) {
               ) : (
                 <ul className="story__bullets">
                   {(s.bullets ?? []).map((h, j) => (
-                    <li key={j}>{t(h)}</li>
+                    <li key={j}>{rich(t(h))}</li>
                   ))}
                 </ul>
               )}

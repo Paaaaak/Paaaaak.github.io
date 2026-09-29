@@ -97,25 +97,25 @@ export const entries: Entry[] = [
           ),
           problem: [
             l(
-              'Every PR went through the same repetitive first pass (style, obvious bugs, missing tests) before reviewers could get to the substance.',
+              'Every PR went through the same **repetitive first pass** (style, obvious bugs, missing tests) before reviewers could get to the substance.',
               '모든 PR에서 코드 스타일, 명백한 버그, 테스트 누락 같은 반복적인 1차 점검을 끝낸 뒤에야 리뷰어가 본질적인 리뷰를 시작할 수 있었습니다.',
             ),
             l(
-              'Linters and static checks can’t judge intent, whether a name actually makes sense, or whether a change fits the surrounding code.',
+              'Linters and static checks **can’t judge intent**, whether a name actually makes sense, or whether a change fits the surrounding code.',
               '린터나 정적 분석은 코드의 의도, 이름이 실제로 적절한지, 변경이 주변 코드와 어울리는지를 판단하지 못했습니다.',
             ),
             l(
-              'To actually get used, the feedback had to show up inside the PR as inline comments, where reviewers already look, not in a separate tool.',
+              'To actually get used, the feedback had to show up **inside the PR as inline comments**, where reviewers already look, not in a separate tool.',
               '실제로 쓰이려면 리뷰 결과가 별도 도구가 아니라, 리뷰어가 이미 보고 있는 PR 안에 인라인 코멘트로 나타나야 했습니다.',
             ),
           ],
           solution: [
             l(
-              'Added a build validation policy on the main branch, so opening or updating a PR automatically runs the pipeline. No one has to start the review.',
+              'Added a **build validation policy** on the main branch, so opening or updating a PR **automatically runs the pipeline**. No one has to start the review.',
               'main 브랜치에 build validation 정책을 추가해서, PR을 만들거나 업데이트하면 파이프라인이 자동으로 실행되게 했습니다. 누가 따로 리뷰를 시작할 필요가 없습니다.',
             ),
             l(
-              'Added a Python step to that pipeline that runs the agent: it reads the PR ID from the pipeline variables, pulls the PR title, description and changed files through the Azure DevOps REST API, gets the diff with git, and loads the review rules from the code-review-hub repo.',
+              'Added a **Python step** to that pipeline that runs the agent: it reads the PR ID from the pipeline variables, pulls the **PR title, description and changed files** through the Azure DevOps REST API, gets the **diff** with git, and loads the **review rules** from the code-review-hub repo.',
               '그 파이프라인에 에이전트를 실행하는 Python 스텝을 추가했습니다. 파이프라인 변수에서 PR 번호를 읽고, Azure DevOps REST API로 PR 제목·설명·변경 파일을 가져오고, git으로 diff를 뜨고, code-review-hub 저장소에서 리뷰 규칙을 불러옵니다.',
             ),
             l(
@@ -123,51 +123,51 @@ export const entries: Entry[] = [
               '프롬프트는 팀 리뷰 규칙, PR 메타데이터, 그리고 diff와 그 주변 코드로 구성했습니다(자세한 내용은 아래).',
             ),
             l(
-              'Asked Claude for structured findings (file, line, severity, concrete suggestion) so the output can be processed programmatically.',
+              'Asked Claude for **structured findings** (file, line, severity, concrete suggestion) so the output can be processed programmatically.',
               'Claude가 파일, 라인, 심각도, 구체적인 수정 제안을 포함한 구조화된 형식으로 응답하도록 요청해, 결과를 코드로 바로 처리할 수 있게 했습니다.',
             ),
             l(
-              'The script then validates the findings and posts each one back through the Azure DevOps REST API as an inline comment on the changed line, plus one PR-level summary.',
+              'The script then validates the findings and posts each one back through the Azure DevOps REST API as an **inline comment on the changed line**, plus one **PR-level summary**.',
               '그다음 스크립트가 지적 사항을 검증한 뒤, Azure DevOps REST API로 각 지적을 해당 변경 라인에 인라인 코멘트로 남기고 PR 전체 요약도 하나 남깁니다.',
             ),
             l(
-              'Tested it against real pull requests and adjusted the prompt structure and severity thresholds until the comments were useful and the noise was low.',
+              'Tested it against **real pull requests** and adjusted the prompt structure and severity thresholds until the comments were useful and the noise was low.',
               '실제 PR을 대상으로 테스트하면서, 코멘트가 실제로 도움이 되고 불필요한 지적은 적어질 때까지 프롬프트 구조와 심각도 기준을 조정했습니다.',
             ),
           ],
           promptDesign: [
             l(
-              'Part 1, the rules (prompt engineering): severity levels, our team’s review rules, what not to flag (things the linter already covers, generated files), and the JSON output format. The rules live in markdown files in a separate code-review-hub repo, not in the agent’s code, so changing how the agent reviews is a markdown edit and a PR. No redeploy, and anyone on the team can add a rule.',
+              '**Part 1, the rules (prompt engineering):** severity levels, our team’s review rules, what not to flag (things the linter already covers, generated files), and the JSON output format. The rules live in **markdown files in a separate code-review-hub repo**, not in the agent’s code, so changing how the agent reviews is a markdown edit and a PR. **No redeploy**, and anyone on the team can add a rule.',
               '1부, 규칙(프롬프트 엔지니어링): 심각도 단계, 팀 리뷰 규칙, 지적하지 말아야 할 것(린터가 이미 잡는 항목, 자동 생성 파일), JSON 출력 형식. 규칙은 에이전트 코드가 아니라 별도 code-review-hub 저장소의 마크다운 파일에 있어서, 리뷰 방식을 바꾸는 건 마크다운 수정과 PR 하나로 끝납니다. 재배포가 없고 팀 누구나 규칙을 추가할 수 있습니다.',
             ),
             l(
-              'Part 2, PR metadata: the title and the author’s description say why the change was made and what it is meant to do, and the changed-file list shows the shape of the change before the model reads a single diff line.',
+              '**Part 2, PR metadata:** the title and the author’s description say **why the change was made** and what it is meant to do, and the changed-file list shows the shape of the change before the model reads a single diff line.',
               '2부, PR 메타데이터: 제목과 작성자의 설명은 왜, 무엇을 바꿨는지를 알려주고, 변경 파일 목록은 diff를 읽기 전에 변경의 윤곽을 보여줍니다.',
             ),
             l(
-              'Part 3, the diff plus surrounding context: the diff alone is not enough, because a changed line often calls a method whose implementation is outside the diff. So the agent also includes the implementation of methods the changed code calls, and the imports and signatures of touched files.',
+              '**Part 3, the diff plus surrounding context:** the diff alone is not enough, because a changed line often calls a method whose implementation is outside the diff. So the agent also includes the **implementation of methods the changed code calls**, and the imports and signatures of touched files.',
               '3부, diff와 주변 컨텍스트: diff만으로는 부족합니다. 바뀐 줄이 호출하는 메소드의 구현은 diff 밖에 있는 경우가 많으니까요. 그래서 변경된 코드가 호출하는 메소드의 구현, 변경 파일의 import와 시그니처도 함께 넣습니다.',
             ),
             l(
-              'Context engineering: deciding what goes into parts 2 and 3, and how much. The context window is a finite resource. Sending the whole repository would exceed it, bury the model in irrelevant code, and add latency and cost, so the agent selects only what this PR needs.',
+              '**Context engineering:** deciding what goes into parts 2 and 3, and how much. The context window is a **finite resource**. Sending the whole repository would exceed it, bury the model in irrelevant code, and add latency and cost, so the agent **selects only what this PR needs**.',
               '컨텍스트 엔지니어링: 2부와 3부에 무엇을 얼마나 넣을지 정하는 일입니다. 컨텍스트 윈도우는 유한한 자원입니다. 저장소 전체를 보내면 토큰이 넘치고, 무관한 코드에 묻히고, 지연과 비용이 늘어나기 때문에 이 PR에 필요한 것만 골라 넣습니다.',
             ),
             l(
-              'Large diffs are split into chunks that share a common header (PR summary and full file list), so a finding in one chunk can still point at code in another.',
+              '**Large diffs** are split into chunks that share a **common header** (PR summary and full file list), so a finding in one chunk can still point at code in another.',
               '큰 diff는 청크로 나누되 모든 청크에 공통 헤더(PR 요약과 전체 파일 목록)를 붙여서, 한 청크에서 나온 지적이 다른 청크의 코드를 가리킬 수 있게 합니다.',
             ),
             l(
-              'Output contract: strict JSON, validated before anything is posted. Malformed output triggers a limited retry instead of a bad comment.',
+              '**Output contract:** strict JSON, **validated before anything is posted**. Malformed output triggers a limited retry instead of a bad comment.',
               '출력 형식: 엄격한 JSON으로 고정하고 게시 전에 검증합니다. 형식이 깨지면 잘못된 코멘트를 남기는 대신 제한된 횟수만 재시도합니다.',
             ),
           ],
           result: [
             l(
-              'Repetitive first-pass review is automated on every PR; reviewers start from a PR that already has findings pinned to the relevant lines.',
+              'Repetitive first-pass review is **automated on every PR**; reviewers start from a PR that already has findings pinned to the relevant lines.',
               '반복적인 1차 리뷰가 모든 PR에서 자동으로 이루어지고, 리뷰어는 중요한 라인에 이미 코멘트가 달린 상태에서 리뷰를 시작합니다.',
             ),
             l(
-              'Every PR is checked against the same written team rules, so the first pass is consistent no matter who reviews it, and the team can keep tuning those rules without touching the agent’s code.',
+              'Every PR is checked against the same written team rules, so the first pass is **consistent no matter who reviews it**, and the team can keep tuning those rules without touching the agent’s code.',
               '모든 PR이 같은 팀 규칙 문서를 기준으로 검토되어 누가 리뷰하든 1차 리뷰가 일관되고, 팀은 에이전트 코드를 건드리지 않고도 규칙을 계속 다듬을 수 있습니다.',
             ),
           ],
