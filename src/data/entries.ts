@@ -476,29 +476,30 @@ export const entries: Entry[] = [
       {
         id: 'data-pipeline',
         title: l('Sales data pipeline for 500 stores, from nightly batch to HQ dashboard', '500개 매장 판매 데이터 파이프라인, 야간 배치에서 본사 대시보드까지'),
-        stack: ['Spring Batch', 'MSSQL', 'Spring Cache', 'SQL optimization'],
+        stack: ['Spring Batch', 'MSSQL', 'ERP integration', 'Spring Cache', 'SQL optimization'],
         caseStudy: {
           architecture: {
             rows: [
               [
                 { id: 'stores', label: l('500 stores', '500개 매장'), sub: l('daily CSV per store', '매장별 일일 CSV') },
-                { id: 'job', label: l('Spring Batch job', 'Spring Batch 잡'), sub: l('runs nightly', '매일 밤 실행'), accent: true },
+                { id: 'job', label: l('Spring Batch job', 'Spring Batch 잡'), sub: l('nightly · partitioned', '매일 밤 · 파티션'), accent: true },
               ],
               [
+                { id: 'erp', label: l('ERP sync', 'ERP 동기화'), sub: l('product master', '상품 마스터'), accent: true },
                 { id: 'reader', label: l('Reader', 'Reader'), sub: l('FlatFileItemReader', 'FlatFileItemReader'), accent: true },
-                { id: 'processor', label: l('Processor', 'Processor'), sub: l('validate · skip bad rows', '검증 · 오류 행 분리'), accent: true },
+                { id: 'processor', label: l('Processor', 'Processor'), sub: l('validate · error table', '검증 · 오류 테이블'), accent: true },
                 { id: 'writer', label: l('Writer', 'Writer'), sub: l('bulk insert · chunk = tx', '일괄 insert · 청크 = 트랜잭션'), accent: true },
               ],
               [
-                { id: 'summary', label: l('Summary tables', '집계 테이블'), sub: l('daily · per store', '일별 · 매장별'), accent: true },
+                { id: 'summary', label: l('Summary tables', '집계 테이블'), sub: l('daily · store · category', '일별 · 매장 · 카테고리'), accent: true },
                 { id: 'dash', label: l('HQ dashboard', '본사 대시보드'), sub: l('cache · covering indexes', '캐시 · 커버링 인덱스') },
               ],
             ],
-            rowLinks: [l('read files', '파일 읽기'), l('final step: aggregate', '마지막 Step: 집계')],
+            rowLinks: [l('steps 1–2', 'Step 1–2'), l('step 3: aggregate', 'Step 3: 집계')],
           },
           architectureNote: l(
-            'Colored boxes are the parts I built. Bad records are skipped and logged in the Processor, so one store’s broken file never stops the job for the others.',
-            '색이 칠해진 박스가 제가 만든 부분입니다. 잘못된 레코드는 Processor에서 건너뛰고 로그로 남겨서, 매장 한 곳의 파일 문제가 다른 매장의 처리를 막지 않습니다.',
+            'Colored boxes are the parts I built. Each store runs as its own partition, so one store’s broken file fails only that partition, and bad records go to an error table to be retried on the next run.',
+            '색이 칠해진 박스가 제가 만든 부분입니다. 매장마다 별도 파티션으로 돌기 때문에 한 매장의 파일이 깨져도 그 파티션만 실패하고, 잘못된 레코드는 오류 테이블로 가서 다음 실행에서 다시 처리됩니다.',
           ),
           problem: [
             l(
@@ -506,40 +507,44 @@ export const entries: Entry[] = [
               '쌤소나이트코리아는 백화점, 면세점, 아울렛까지 합쳐 전국에 약 500개 매장이 있었고, 본사는 모든 매장의 판매·환불 데이터를 한곳에서 정확하게 봐야 했습니다.',
             ),
             l(
-              'Each store sent its **daily transactions as a CSV file**. Files could have missing fields, wrong formats, duplicated transactions, or refunds that didn’t match any sale, and **one bad file could not be allowed to block the other 499 stores**.',
-              '매장마다 하루 거래를 CSV 파일로 보냈는데, 필수값 누락, 포맷 오류, 중복 거래, 원거래가 없는 환불 같은 문제가 섞여 들어올 수 있었고, 파일 하나 때문에 나머지 499개 매장 처리가 막히면 안 됐습니다.',
+              'Each store sent its **daily transactions as a CSV file**, around a thousand records a day across all stores. Files could have missing fields, wrong formats, duplicates, or refunds whose original sale hadn’t arrived yet, and **one bad file could not be allowed to block the other 499 stores**.',
+              '매장마다 하루 거래를 CSV 파일로 보냈고, 전체 매장을 합쳐 하루 약 천 건 규모였습니다. 필수값 누락, 포맷 오류, 중복, 원거래가 아직 도착하지 않은 환불 같은 문제가 섞여 들어올 수 있었고, 파일 하나 때문에 나머지 499개 매장 처리가 막히면 안 됐습니다.',
             ),
             l(
-              'As years of data piled up, year-over-year comparison queries **scanned millions of rows**, and every morning HQ and store managers opened the dashboard at the same time and ran the **same heavy queries**.',
-              '몇 년치 데이터가 쌓이면서 전년 동기 비교 쿼리가 수백만 건을 읽게 됐고, 아침마다 본사와 매장 관리자들이 동시에 대시보드를 열어 같은 무거운 쿼리가 반복 실행됐습니다.',
+              'Over time the dashboard slowed down. Summaries existed only per day and store, so comparisons by product and category, such as year-over-year, still ran against the raw transaction table, which had grown past **a million rows**. Every morning HQ and store managers opened the dashboard at the same time and ran those **same heavy queries** again and again.',
+              '시간이 지나며 대시보드가 느려졌습니다. 집계는 일별·매장별로만 있어서 전년 대비 같은 상품·카테고리별 비교는 여전히 원본 거래 테이블을 읽었는데, 이 테이블이 백만 건을 넘어섰습니다. 아침마다 본사와 매장 관리자들이 동시에 대시보드를 열어 같은 무거운 쿼리가 반복 실행됐습니다.',
             ),
           ],
           solution: [
             l(
-              'Built the **nightly job with Spring Batch**: a **FlatFileItemReader** reads each store’s CSV in chunks, a few thousand records a day in total.',
-              'Spring Batch로 야간 잡을 만들었습니다. FlatFileItemReader가 매장별 CSV를 청크 단위로 읽고, 하루 전체로 수천 건 규모입니다.',
+              'Built the **nightly Spring Batch job** in three steps. Step 1 syncs the latest **product master from the ERP** (SKU, price, category) into a local reference table.',
+              'Spring Batch 야간 잡을 세 단계로 만들었습니다. Step 1은 ERP에서 최신 상품 마스터(SKU, 가격, 카테고리)를 가져와 로컬 참조 테이블에 동기화합니다.',
             ),
             l(
-              'An **ItemProcessor validates every record**: required fields present, dates and amounts in the right format, no duplicate transactions, and each refund matched to a real original sale. Bad records are **skipped, logged and set aside** instead of failing the job.',
-              'ItemProcessor에서 레코드마다 필수값, 날짜·금액 포맷, 중복 거래, 환불 건과 원거래 매칭을 검증합니다. 오류 레코드는 잡을 실패시키는 대신 skip 정책으로 로그를 남기고 따로 분리합니다.',
+              'Step 2 reads the store CSVs with a **FlatFileItemReader**, **partitioned by store**. Each store’s file runs as its own partition with its own skip limit, so a completely broken file **fails only that store’s partition** and is flagged for a rerun instead of stopping the whole job.',
+              'Step 2는 FlatFileItemReader로 매장 CSV를 읽는데, 매장별로 파티션을 나눴습니다. 매장마다 별도 파티션과 skip limit을 갖기 때문에, 파일이 통째로 깨져도 그 매장 파티션만 실패하고 재실행 대상으로 표시될 뿐 전체 잡은 멈추지 않습니다.',
             ),
             l(
-              'An **ItemWriter bulk-inserts** the valid records into MSSQL. **Each chunk is its own transaction**, so a failure rolls back only that chunk and the job **restarts from the last commit**, not from the beginning.',
-              'ItemWriter가 검증을 통과한 데이터를 MSSQL에 일괄 insert합니다. 청크 하나가 트랜잭션 하나라서 실패해도 그 청크만 롤백되고, 처음이 아니라 마지막 커밋 지점부터 재시작합니다.',
+              'An **ItemProcessor validates every record**: required fields, date and amount formats, duplicates by store, receipt and line number, SKUs checked against the ERP product master, and refunds matched to an original sale. Failed records go to an **error table instead of failing the job**, and refunds whose original sale hasn’t arrived yet are **re-checked on the next run**.',
+              'ItemProcessor에서 레코드마다 필수값, 날짜·금액 포맷, 매장·영수증·라인 번호 기준 중복, ERP 상품 마스터 기준 SKU 유효성, 환불과 원거래 매칭을 검증합니다. 실패한 레코드는 잡을 멈추는 대신 오류 테이블로 보내고, 원거래가 아직 안 들어온 환불은 다음 실행에서 다시 확인합니다.',
             ),
             l(
-              'A final step updates the **daily and per-store summary tables**, and the HQ dashboard reads from those tables to show sales, refunds and period comparisons.',
-              '마지막 Step에서 일별·매장별 집계 테이블을 갱신하고, 본사 대시보드는 이 테이블을 기반으로 매출, 환불, 기간 비교를 보여줍니다.',
+              'An **ItemWriter bulk-inserts** the valid records into MSSQL. **Each chunk is its own transaction**, so a failure rolls back only that chunk and the partition **restarts from the last commit**.',
+              'ItemWriter가 검증을 통과한 데이터를 MSSQL에 일괄 insert합니다. 청크 하나가 트랜잭션 하나라서 실패해도 그 청크만 롤백되고, 파티션은 마지막 커밋 지점부터 재시작합니다.',
             ),
             l(
-              'For the slow queries: added **covering indexes** for the most common ones so they don’t touch the raw table, moved **heavy aggregations into the batch** so they are computed ahead of time, and cached the most-viewed screens with **Spring Cache**.',
-              '느린 쿼리에는 세 가지를 적용했습니다. 자주 쓰는 쿼리에 커버링 인덱스를 만들어 원본 테이블을 다시 읽지 않게 했고, 무거운 집계는 배치에서 미리 계산했고, 자주 보는 화면은 Spring Cache로 캐싱했습니다.',
+              'Step 3 updates the **daily per-store summary tables**, and recalculates any past date that received late records, so the numbers correct themselves the next morning.',
+              'Step 3은 일별·매장별 집계 테이블을 갱신하고, 늦게 도착한 레코드가 있는 과거 날짜도 다시 계산해서 다음 날 아침이면 숫자가 자동으로 바로잡힙니다.',
+            ),
+            l(
+              'For the slow dashboard: added **monthly and product/category summary tables** to the batch using the ERP categories, **covering indexes** for the queries that still read raw data, and **Spring Cache** for the most-viewed screens, cleared when the nightly batch finishes.',
+              '느린 대시보드에는 ERP 카테고리를 이용한 월별·상품/카테고리별 집계 테이블을 배치에 추가하고, 여전히 원본을 읽는 쿼리에는 커버링 인덱스를 만들고, 자주 보는 화면은 Spring Cache로 캐싱해서 야간 배치가 끝나면 비우도록 했습니다.',
             ),
           ],
           result: [
             l(
-              'Headquarters gets **one trusted set of numbers across all 500 stores** every morning, and a bad file from one store no longer delays the rest.',
-              '본사는 매일 아침 500개 매장 전체에 대해 믿을 수 있는 하나의 숫자를 받게 되었고, 매장 한 곳의 파일 문제가 나머지를 지연시키는 일이 없어졌습니다.',
+              'Headquarters gets **one trusted set of numbers across all 500 stores** every morning. A bad file from one store no longer delays the rest, and late records are picked up automatically.',
+              '본사는 매일 아침 500개 매장 전체에 대해 믿을 수 있는 하나의 숫자를 받게 되었습니다. 매장 한 곳의 파일 문제가 나머지를 지연시키지 않고, 늦게 온 레코드도 자동으로 반영됩니다.',
             ),
             l(
               'Dashboard response time **dropped by 20%** and stayed stable at the morning peak.',
