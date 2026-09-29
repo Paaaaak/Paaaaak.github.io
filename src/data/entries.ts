@@ -275,65 +275,14 @@ export const entries: Entry[] = [
     accentSoft: '#e0f2fe',
     tags: [
       l('Java Full-stack (Spring + React)', 'Java 풀스택 (Spring + React)'),
-      l('Kubernetes Operations', 'Kubernetes 운영'),
+      l('Ad Integration & Reward Logic', '광고 연동 & 리워드 로직'),
       l('10M+ Users in Production', '1,000만+ 사용자 프로덕션'),
     ],
     summary: l(
-      'Java full-stack developer on OK Cashbag, a rewards platform with 10M+ users in Korea. Integrated third-party ad providers, made the reward payment logic reliable with tests, sped up the pages, and ran the reward service on Kubernetes so a broken instance is isolated and restarted on its own.',
-      '국내 1,000만+ 사용자의 리워드 플랫폼 OK캐쉬백에서 Java 풀스택 개발자로 일했습니다. 서드파티 광고사를 연동하고, 리워드 지급 로직을 테스트로 안정화하고, 페이지 속도를 올렸으며, 리워드 서비스를 Kubernetes에서 운영해 고장 난 인스턴스가 스스로 격리·재시작되도록 만들었습니다.',
+      'Java full-stack developer on OK Cashbag, a rewards platform with 10M+ users in Korea. Integrated third-party ad providers, made the reward payment logic reliable with tests, and sped up the pages.',
+      '국내 1,000만+ 사용자의 리워드 플랫폼 OK캐쉬백에서 Java 풀스택 개발자로 일했습니다. 서드파티 광고사를 연동하고, 리워드 지급 로직을 테스트로 안정화하고, 페이지 속도를 올렸습니다.',
     ),
     stories: [
-      // ── Kubernetes: reward service resilience ────────────────
-      {
-        id: 'k8s-reward',
-        title: l('Isolating faulty reward-service instances with Kubernetes', 'Kubernetes로 장애 Reward 인스턴스 자동 격리'),
-        stack: ['Kubernetes', 'Docker', 'Spring', 'Readiness / Liveness probes'],
-        detail: {
-          context: [
-            l(
-              'The OK Cashbag ad-reward system receives **S2S postback** requests from multiple ad vendors, validates them, and grants points.',
-              'OK캐쉬백 광고 리워드 시스템은 여러 광고 업체의 S2S postback 요청을 받아 검증한 뒤 포인트를 지급하고 있었습니다.',
-            ),
-            l(
-              'Repeated or abnormal postbacks from a vendor, or a fault specific to one instance, could make **a single Pod stop responding**.',
-              '광고사의 반복적이거나 비정상적인 postback, 또는 특정 인스턴스에만 생긴 문제로 Pod 하나가 응답하지 않게 되는 일이 있었습니다.',
-            ),
-            l(
-              'A broken instance **kept receiving traffic**, so reward API timeouts grew and **even legitimate point grants were affected**.',
-              '문제 인스턴스가 계속 트래픽을 받으면서 reward API의 timeout이 증가하고 정상적인 포인트 지급 요청까지 영향을 받을 수 있었습니다.',
-            ),
-          ],
-          did: [
-            l(
-              'Packaged the reward service as a Docker container and ran it as **multiple Pods under a Kubernetes Deployment**.',
-              'Reward 서비스를 Docker 컨테이너로 패키징하고 Kubernetes Deployment의 여러 Pod로 운영하도록 구성했습니다.',
-            ),
-            l(
-              'Configured a **readiness probe** on each Pod: a Pod that fails readiness is removed from the Service endpoints so **no new requests reach it**.',
-              '각 Pod에 readiness probe를 설정해, readiness 체크에 실패한 Pod는 Kubernetes Service의 endpoint에서 제외되어 신규 요청이 전달되지 않게 했습니다.',
-            ),
-            l(
-              'Configured a **liveness probe**: repeated liveness failures **automatically restart the container**.',
-              'liveness probe도 설정해, liveness 체크가 반복적으로 실패하면 해당 컨테이너가 자동으로 재시작되도록 했습니다.',
-            ),
-            l(
-              'Set the Deployment’s **desired replicas (10)** so that if a Pod terminates entirely, Kubernetes **schedules a new one automatically**.',
-              'Pod가 완전히 종료되는 경우에도 Deployment의 desired replicas(10)에 따라 Kubernetes가 자동으로 새 Pod를 생성하도록 했습니다.',
-            ),
-          ],
-          result: [
-            l(
-              'A failing reward-service instance is now **isolated from traffic and restarted automatically**, so one application fault **no longer escalates into a full reward-processing outage**.',
-              '특정 Reward 인스턴스에 장애가 나도 문제 Pod가 자동으로 트래픽에서 격리·재시작되어, 하나의 애플리케이션 장애가 전체 리워드 처리 장애로 확대되는 것을 줄였습니다.',
-            ),
-            l(
-              'Operators no longer have to find and restart the broken instance by hand; Kubernetes does it, **cutting recovery time and operational load**.',
-              '운영자가 장애 인스턴스를 확인하고 직접 재시작해야 했던 과정을 Kubernetes가 자동화해 장애 복구 시간과 운영 부담이 줄었습니다.',
-            ),
-          ],
-        },
-      },
-
       // ── OK Cashbag ───────────────────────────────────────────
       {
         id: 'ok-cashbag',
