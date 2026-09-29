@@ -283,35 +283,13 @@ export const entries: Entry[] = [
       '국내 1,000만+ 사용자의 리워드 플랫폼 OK캐쉬백에서 Java 풀스택 개발자로 일했습니다. 서드파티 광고사를 연동하고, 리워드 지급 로직을 테스트로 안정화하고, 페이지 속도를 올렸으며, 리워드 서비스를 Kubernetes에서 운영해 고장 난 인스턴스가 스스로 격리·재시작되도록 만들었습니다.',
     ),
     stories: [
-      // ── ★ Kubernetes: reward service resilience ──────────────
+      // ── Kubernetes: reward service resilience ────────────────
       {
         id: 'k8s-reward',
         title: l('Isolating faulty reward-service instances with Kubernetes', 'Kubernetes로 장애 Reward 인스턴스 자동 격리'),
         stack: ['Kubernetes', 'Docker', 'Spring', 'Readiness / Liveness probes'],
-        caseStudy: {
-          architecture: {
-            fanOut: true,
-            rows: [
-              [
-                { id: 'vendor', label: l('Ad vendors', '광고 업체'), sub: l('S2S postback', 'S2S postback') },
-                { id: 'lb', label: l('Load Balancer', 'Load Balancer'), sub: l('ingress', '인그레스') },
-                { id: 'svc', label: l('Kubernetes Service', 'Kubernetes Service'), sub: l('healthy endpoints only', '정상 endpoint만 라우팅'), accent: true },
-              ],
-              [
-                { id: 'pod1', label: l('Reward Pod 1', 'Reward Pod 1'), sub: l('ready ✓', 'ready ✓'), accent: true },
-                { id: 'pod2', label: l('Reward Pod 2', 'Reward Pod 2'), sub: l('ready ✓', 'ready ✓'), accent: true },
-                { id: 'pod-more', label: l('', ''), ellipsis: true },
-                { id: 'pod9', label: l('Reward Pod 9', 'Reward Pod 9'), sub: l('ready ✓', 'ready ✓'), accent: true },
-                { id: 'pod10', label: l('Reward Pod 10', 'Reward Pod 10'), sub: l('unhealthy ✕ → excluded', 'unhealthy ✕ → 제외'), tone: 'bad' },
-              ],
-            ],
-            rowLinks: [l('readiness-gated routing', 'readiness 기준 라우팅')],
-          },
-          architectureNote: l(
-            'The reward service runs as several Pods behind a Kubernetes Service. A Pod that fails its **readiness** check is dropped from the endpoints; one that keeps failing **liveness** is restarted, and the Deployment keeps the replica count at 10.',
-            'Reward 서비스는 Kubernetes Service 뒤의 여러 Pod로 동작합니다. readiness 체크에 실패한 Pod는 endpoint에서 제외되고, liveness에 반복 실패하면 재시작되며, Deployment가 replica 수를 10으로 유지합니다.',
-          ),
-          problem: [
+        detail: {
+          context: [
             l(
               'The OK Cashbag ad-reward system receives **S2S postback** requests from multiple ad vendors, validates them, and grants points.',
               'OK캐쉬백 광고 리워드 시스템은 여러 광고 업체의 S2S postback 요청을 받아 검증한 뒤 포인트를 지급하고 있었습니다.',
@@ -325,7 +303,7 @@ export const entries: Entry[] = [
               '문제 인스턴스가 계속 트래픽을 받으면서 reward API의 timeout이 증가하고 정상적인 포인트 지급 요청까지 영향을 받을 수 있었습니다.',
             ),
           ],
-          solution: [
+          did: [
             l(
               'Packaged the reward service as a Docker container and ran it as **multiple Pods under a Kubernetes Deployment**.',
               'Reward 서비스를 Docker 컨테이너로 패키징하고 Kubernetes Deployment의 여러 Pod로 운영하도록 구성했습니다.',
@@ -545,36 +523,78 @@ export const entries: Entry[] = [
       '첫 회사입니다. 쌤소나이트 500여 개 매장의 EPOS와 창고 시스템을 Spring Boot로 개발·운영했고, 창고를 직접 방문해 스캔 작업을 고치고, PDA .NET 시스템을 Node.js 웹 앱으로 옮기는 일을 맡았으며, 본사 대시보드를 빠르게 유지했습니다.',
     ),
     stories: [
-      // ── EPOS ─────────────────────────────────────────────────
+      // ── ★ Data pipeline: nightly batch → HQ dashboard ────────
       {
-        id: 'epos',
-        title: l('Samsonite EPOS system for 500+ stores', '쌤소나이트 EPOS 시스템, 전국 500여 개 매장'),
-        stack: ['Spring Boot', 'MSSQL', 'Batch'],
-        detail: {
-          context: [
+        id: 'data-pipeline',
+        title: l('Sales data pipeline for 500 stores, from nightly batch to HQ dashboard', '500개 매장 판매 데이터 파이프라인, 야간 배치에서 본사 대시보드까지'),
+        stack: ['Spring Batch', 'MSSQL', 'Spring Cache', 'SQL optimization'],
+        caseStudy: {
+          architecture: {
+            rows: [
+              [
+                { id: 'stores', label: l('500 stores', '500개 매장'), sub: l('daily CSV per store', '매장별 일일 CSV') },
+                { id: 'job', label: l('Spring Batch job', 'Spring Batch 잡'), sub: l('runs nightly', '매일 밤 실행'), accent: true },
+              ],
+              [
+                { id: 'reader', label: l('Reader', 'Reader'), sub: l('FlatFileItemReader', 'FlatFileItemReader'), accent: true },
+                { id: 'processor', label: l('Processor', 'Processor'), sub: l('validate · skip bad rows', '검증 · 오류 행 분리'), accent: true },
+                { id: 'writer', label: l('Writer', 'Writer'), sub: l('bulk insert · chunk = tx', '일괄 insert · 청크 = 트랜잭션'), accent: true },
+              ],
+              [
+                { id: 'summary', label: l('Summary tables', '집계 테이블'), sub: l('daily · per store', '일별 · 매장별'), accent: true },
+                { id: 'dash', label: l('HQ dashboard', '본사 대시보드'), sub: l('cache · covering indexes', '캐시 · 커버링 인덱스') },
+              ],
+            ],
+            rowLinks: [l('read files', '파일 읽기'), l('final step: aggregate', '마지막 Step: 집계')],
+          },
+          architectureNote: l(
+            'Colored boxes are the parts I built. Bad records are skipped and logged in the Processor, so one store’s broken file never stops the job for the others.',
+            '색이 칠해진 박스가 제가 만든 부분입니다. 잘못된 레코드는 Processor에서 건너뛰고 로그로 남겨서, 매장 한 곳의 파일 문제가 다른 매장의 처리를 막지 않습니다.',
+          ),
+          problem: [
             l(
-              'Nexol System builds and runs the retail and logistics systems for Samsonite Korea, including the **EPOS system used in 500+ stores** and the **warehouse management system**. I developed and maintained both, on Spring Boot.',
-              '넥솔시스템은 쌤소나이트 코리아의 리테일·물류 시스템을 개발하고 운영하는 회사입니다. 전국 500여 개 매장에서 쓰는 EPOS와 창고 관리 시스템이 여기 포함되고, 저는 둘 다 Spring Boot 기반으로 개발·운영했습니다.',
+              'Samsonite Korea had about **500 stores** across department stores, duty-free shops and outlets, and headquarters needed to **see every store’s sales and refunds in one place** and trust the numbers.',
+              '쌤소나이트코리아는 백화점, 면세점, 아울렛까지 합쳐 전국에 약 500개 매장이 있었고, 본사는 모든 매장의 판매·환불 데이터를 한곳에서 정확하게 봐야 했습니다.',
+            ),
+            l(
+              'Each store sent its **daily transactions as a CSV file**. Files could have missing fields, wrong formats, duplicated transactions, or refunds that didn’t match any sale, and **one bad file could not be allowed to block the other 499 stores**.',
+              '매장마다 하루 거래를 CSV 파일로 보냈는데, 필수값 누락, 포맷 오류, 중복 거래, 원거래가 없는 환불 같은 문제가 섞여 들어올 수 있었고, 파일 하나 때문에 나머지 499개 매장 처리가 막히면 안 됐습니다.',
+            ),
+            l(
+              'As years of data piled up, year-over-year comparison queries **scanned millions of rows**, and every morning HQ and store managers opened the dashboard at the same time and ran the **same heavy queries**.',
+              '몇 년치 데이터가 쌓이면서 전년 동기 비교 쿼리가 수백만 건을 읽게 됐고, 아침마다 본사와 매장 관리자들이 동시에 대시보드를 열어 같은 무거운 쿼리가 반복 실행됐습니다.',
             ),
           ],
-          did: [
+          solution: [
             l(
-              'On the maintenance side, the **nightly closing batch** was the critical piece. Every night the transactions from all 500 stores are aggregated and sent to headquarters, and when that failed, **HQ had no sales report in the morning**. A common cause was a **store losing its network** during the day, so its transactions arrived late or not at all.',
-              '운영 쪽에서 가장 중요한 건 야간 마감 배치였습니다. 매일 밤 500개 매장의 거래를 모아서 본사로 보내는데, 이게 실패하면 본사는 아침에 매출 리포트를 볼 수 없습니다. 흔한 원인은 매장이 낮에 네트워크가 끊겨서 거래가 늦게 오거나 아예 안 오는 경우였습니다.',
+              'Built the **nightly job with Spring Batch**: a **FlatFileItemReader** reads each store’s CSV in chunks, a few thousand records a day in total.',
+              'Spring Batch로 야간 잡을 만들었습니다. FlatFileItemReader가 매장별 CSV를 청크 단위로 읽고, 하루 전체로 수천 건 규모입니다.',
             ),
             l(
-              'Improved the **retry and re-processing logic** so late transactions are **picked up automatically in the next run**, instead of someone manually re-running the batch at 7 a.m.',
-              '재시도와 재처리 로직을 고쳐서, 늦게 도착한 거래를 다음 실행에서 자동으로 반영하도록 했습니다. 누군가 아침 7시에 배치를 손으로 다시 돌리는 일이 없어졌습니다.',
+              'An **ItemProcessor validates every record**: required fields present, dates and amounts in the right format, no duplicate transactions, and each refund matched to a real original sale. Bad records are **skipped, logged and set aside** instead of failing the job.',
+              'ItemProcessor에서 레코드마다 필수값, 날짜·금액 포맷, 중복 거래, 환불 건과 원거래 매칭을 검증합니다. 오류 레코드는 잡을 실패시키는 대신 skip 정책으로 로그를 남기고 따로 분리합니다.',
             ),
             l(
-              'On the development side, built the **sales dashboard screens for headquarters**. Those dashboard queries turned out to be the slow ones I later fixed in the performance work below.',
-              '개발 쪽에서는 본사용 매출 대시보드 화면을 만들었습니다. 이 대시보드의 쿼리가 나중에 느려져서, 아래의 성능 개선 작업으로 이어졌습니다.',
+              'An **ItemWriter bulk-inserts** the valid records into MSSQL. **Each chunk is its own transaction**, so a failure rolls back only that chunk and the job **restarts from the last commit**, not from the beginning.',
+              'ItemWriter가 검증을 통과한 데이터를 MSSQL에 일괄 insert합니다. 청크 하나가 트랜잭션 하나라서 실패해도 그 청크만 롤백되고, 처음이 아니라 마지막 커밋 지점부터 재시작합니다.',
+            ),
+            l(
+              'A final step updates the **daily and per-store summary tables**, and the HQ dashboard reads from those tables to show sales, refunds and period comparisons.',
+              '마지막 Step에서 일별·매장별 집계 테이블을 갱신하고, 본사 대시보드는 이 테이블을 기반으로 매출, 환불, 기간 비교를 보여줍니다.',
+            ),
+            l(
+              'For the slow queries: added **covering indexes** for the most common ones so they don’t touch the raw table, moved **heavy aggregations into the batch** so they are computed ahead of time, and cached the most-viewed screens with **Spring Cache**.',
+              '느린 쿼리에는 세 가지를 적용했습니다. 자주 쓰는 쿼리에 커버링 인덱스를 만들어 원본 테이블을 다시 읽지 않게 했고, 무거운 집계는 배치에서 미리 계산했고, 자주 보는 화면은 Spring Cache로 캐싱했습니다.',
             ),
           ],
           result: [
             l(
-              'Headquarters got its **morning sales report reliably**, and the dashboard became the main way they looked at store performance.',
-              '본사가 아침 매출 리포트를 안정적으로 받게 되었고, 대시보드는 본사가 매장 실적을 보는 기본 창구가 되었습니다.',
+              'Headquarters gets **one trusted set of numbers across all 500 stores** every morning, and a bad file from one store no longer delays the rest.',
+              '본사는 매일 아침 500개 매장 전체에 대해 믿을 수 있는 하나의 숫자를 받게 되었고, 매장 한 곳의 파일 문제가 나머지를 지연시키는 일이 없어졌습니다.',
+            ),
+            l(
+              'Dashboard response time **dropped by 20%** and stayed stable at the morning peak.',
+              '대시보드 응답 시간이 20% 줄었고 아침 피크 시간에도 안정적으로 동작합니다.',
             ),
           ],
         },
@@ -588,24 +608,24 @@ export const entries: Entry[] = [
         detail: {
           context: [
             l(
-              '**Visited the Samsonite logistics warehouses** to see how the inbound and outbound scanning actually worked, rather than going by what the tickets said.',
-              '티켓에 적힌 내용만 보지 않고, 쌤소나이트 물류창고에 직접 가서 입출고 스캔 작업이 실제로 어떻게 돌아가는지 봤습니다.',
+              '**Visited the Samsonite logistics warehouses** to see how the inbound and outbound scanning workflows actually ran, and to find where the time was going.',
+              '쌤소나이트 물류창고를 직접 방문해 입출고 스캔 작업이 실제로 어떻게 돌아가는지, 어디서 시간이 새는지 확인했습니다.',
             ),
           ],
           did: [
             l(
-              'Found that for every item, a worker scanned the barcode, then **searched for the product manually**, found the matching row, and **updated the quantity and status by hand**. Several steps for something that should be one.',
-              '작업자가 상품마다 바코드를 찍은 뒤, 상품을 직접 검색해서 해당 행을 찾고, 수량과 상태를 손으로 바꾸고 있었습니다. 한 번에 끝나야 할 일이 여러 단계로 쪼개져 있었습니다.',
+              '**Identified the inefficiency**: for every item, a worker scanned the barcode, then **searched for the product manually**, found the matching row, and **updated the quantity and status by hand**.',
+              '비효율을 찾아냈습니다. 작업자가 상품마다 바코드를 찍은 뒤 상품을 직접 검색해 해당 행을 찾고, 수량과 상태를 손으로 바꾸고 있었습니다.',
             ),
             l(
-              'Built a **Node.js-based single-scan flow**: once the barcode is scanned, the system **identifies the product and updates the inventory record itself**, so the worker only confirms when something doesn’t match.',
-              'Node.js 기반의 싱글 스캔 흐름을 만들었습니다. 바코드를 찍으면 시스템이 상품을 알아서 찾아 재고 기록을 바로 갱신하고, 작업자는 뭔가 안 맞을 때만 확인하면 됩니다.',
+              'Implemented a **Node.js-based single-scan automation**: once the barcode is scanned, the system **identifies the product and updates the inventory record itself**, so the worker only steps in when something doesn’t match.',
+              'Node.js 기반의 싱글 스캔 자동화를 구현했습니다. 바코드를 찍으면 시스템이 상품을 알아서 찾아 재고 기록을 바로 갱신하고, 작업자는 뭔가 안 맞을 때만 개입합니다.',
             ),
           ],
           result: [
             l(
-              'The number of **manual steps per inbound and outbound operation dropped**, and the change came from watching the work rather than from a feature request.',
-              '입출고 작업마다 필요한 수작업 단계가 줄었습니다. 그리고 이 개선은 기능 요청이 아니라 현장에서 일하는 모습을 직접 본 데서 나왔습니다.',
+              '**Fewer manual steps** per inbound and outbound operation, and a smoother workflow for the warehouse team.',
+              '입출고 작업마다 필요한 수작업 단계가 줄었고, 창고 팀의 작업 흐름이 매끄러워졌습니다.',
             ),
           ],
         },
@@ -638,38 +658,6 @@ export const entries: Entry[] = [
               'Rolling out bug fixes and responding to production issues became much faster, and **application downtime decreased by 30%**.',
               '버그 수정 배포와 운영 이슈 대응이 훨씬 빨라졌고, 애플리케이션 다운타임이 30% 줄었습니다.',
             ),
-          ],
-        },
-      },
-
-      // ── DB performance ───────────────────────────────────────
-      {
-        id: 'db-performance',
-        title: l('Faster dashboard queries under heavy traffic, 20% lower response time', '트래픽이 몰릴 때의 대시보드 쿼리 개선, 응답 시간 20% 단축'),
-        stack: ['MSSQL', 'Indexing', 'Caching'],
-        detail: {
-          context: [
-            l(
-              'The headquarters sales dashboard aggregated data across 500+ stores, and when **many people opened it at once** the queries **slowed down noticeably**.',
-              '본사 매출 대시보드는 500여 개 매장의 데이터를 집계하는데, 여러 사람이 동시에 열면 쿼리가 눈에 띄게 느려졌습니다.',
-            ),
-          ],
-          did: [
-            l(
-              'Added **covering indexes** for the queries the dashboard ran most, so they could be answered from the index without touching the full table.',
-              '대시보드가 가장 자주 실행하는 쿼리에 커버링 인덱스를 추가해서, 테이블 전체를 읽지 않고 인덱스만으로 답할 수 있게 했습니다.',
-            ),
-            l(
-              'Built **pre-aggregated summary tables**, filled ahead of time, so the dashboard reads totals that are already computed instead of summing raw transactions on every request.',
-              '미리 집계해 둔 요약 테이블을 만들어서, 요청마다 원본 거래를 다 더하는 대신 이미 계산된 합계를 읽도록 했습니다.',
-            ),
-            l(
-              '**Cached results** that rarely change so repeated requests didn’t hit the database again.',
-              '자주 바뀌지 않는 결과는 캐싱해서 반복 요청이 DB까지 가지 않게 했습니다.',
-            ),
-          ],
-          result: [
-            l('Response times **decreased by 20%** and stayed stable when traffic peaked.', '응답 시간이 20% 줄었고, 트래픽이 몰릴 때도 안정적으로 유지되었습니다.'),
           ],
         },
       },
