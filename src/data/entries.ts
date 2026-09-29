@@ -308,48 +308,48 @@ export const entries: Entry[] = [
             rowLinks: [l('readiness-gated routing', 'readiness 기준 라우팅')],
           },
           architectureNote: l(
-            'The reward service runs as several Pods behind a Kubernetes Service. A Pod that fails its readiness check is dropped from the endpoints; one that keeps failing liveness is restarted, and the Deployment keeps the replica count at 10.',
+            'The reward service runs as several Pods behind a Kubernetes Service. A Pod that fails its **readiness** check is dropped from the endpoints; one that keeps failing **liveness** is restarted, and the Deployment keeps the replica count at 10.',
             'Reward 서비스는 Kubernetes Service 뒤의 여러 Pod로 동작합니다. readiness 체크에 실패한 Pod는 endpoint에서 제외되고, liveness에 반복 실패하면 재시작되며, Deployment가 replica 수를 10으로 유지합니다.',
           ),
           problem: [
             l(
-              'The OK Cashbag ad-reward system receives S2S postback requests from multiple ad vendors, validates them, and grants points.',
+              'The OK Cashbag ad-reward system receives **S2S postback** requests from multiple ad vendors, validates them, and grants points.',
               'OK캐쉬백 광고 리워드 시스템은 여러 광고 업체의 S2S postback 요청을 받아 검증한 뒤 포인트를 지급하고 있었습니다.',
             ),
             l(
-              'Repeated or abnormal postbacks from a vendor, or a fault specific to one instance, could make a single Pod stop responding.',
+              'Repeated or abnormal postbacks from a vendor, or a fault specific to one instance, could make **a single Pod stop responding**.',
               '광고사의 반복적이거나 비정상적인 postback, 또는 특정 인스턴스에만 생긴 문제로 Pod 하나가 응답하지 않게 되는 일이 있었습니다.',
             ),
             l(
-              'A broken instance kept receiving traffic, so reward API timeouts grew and even legitimate point grants were affected.',
+              'A broken instance **kept receiving traffic**, so reward API timeouts grew and **even legitimate point grants were affected**.',
               '문제 인스턴스가 계속 트래픽을 받으면서 reward API의 timeout이 증가하고 정상적인 포인트 지급 요청까지 영향을 받을 수 있었습니다.',
             ),
           ],
           solution: [
             l(
-              'Packaged the reward service as a Docker container and ran it as multiple Pods under a Kubernetes Deployment.',
+              'Packaged the reward service as a Docker container and ran it as **multiple Pods under a Kubernetes Deployment**.',
               'Reward 서비스를 Docker 컨테이너로 패키징하고 Kubernetes Deployment의 여러 Pod로 운영하도록 구성했습니다.',
             ),
             l(
-              'Configured a readiness probe on each Pod: a Pod that fails readiness is removed from the Service endpoints so no new requests reach it.',
+              'Configured a **readiness probe** on each Pod: a Pod that fails readiness is removed from the Service endpoints so **no new requests reach it**.',
               '각 Pod에 readiness probe를 설정해, readiness 체크에 실패한 Pod는 Kubernetes Service의 endpoint에서 제외되어 신규 요청이 전달되지 않게 했습니다.',
             ),
             l(
-              'Configured a liveness probe: repeated liveness failures automatically restart the container.',
+              'Configured a **liveness probe**: repeated liveness failures **automatically restart the container**.',
               'liveness probe도 설정해, liveness 체크가 반복적으로 실패하면 해당 컨테이너가 자동으로 재시작되도록 했습니다.',
             ),
             l(
-              'Set the Deployment’s desired replicas (10) so that if a Pod terminates entirely, Kubernetes schedules a new one automatically.',
+              'Set the Deployment’s **desired replicas (10)** so that if a Pod terminates entirely, Kubernetes **schedules a new one automatically**.',
               'Pod가 완전히 종료되는 경우에도 Deployment의 desired replicas(10)에 따라 Kubernetes가 자동으로 새 Pod를 생성하도록 했습니다.',
             ),
           ],
           result: [
             l(
-              'A failing reward-service instance is now isolated from traffic and restarted automatically, so one application fault no longer escalates into a full reward-processing outage.',
+              'A failing reward-service instance is now **isolated from traffic and restarted automatically**, so one application fault **no longer escalates into a full reward-processing outage**.',
               '특정 Reward 인스턴스에 장애가 나도 문제 Pod가 자동으로 트래픽에서 격리·재시작되어, 하나의 애플리케이션 장애가 전체 리워드 처리 장애로 확대되는 것을 줄였습니다.',
             ),
             l(
-              'Operators no longer have to find and restart the broken instance by hand; Kubernetes does it, cutting recovery time and operational load.',
+              'Operators no longer have to find and restart the broken instance by hand; Kubernetes does it, **cutting recovery time and operational load**.',
               '운영자가 장애 인스턴스를 확인하고 직접 재시작해야 했던 과정을 Kubernetes가 자동화해 장애 복구 시간과 운영 부담이 줄었습니다.',
             ),
           ],
@@ -364,13 +364,13 @@ export const entries: Entry[] = [
         detail: {
           context: [
             l(
-              'OK Cashbag is a cash-like rewards platform in Korea with more than 10 million users. People earn points by joining events, playing mini-games, or watching ads, and spend them on purchases, partner points, or gift cards.',
+              'OK Cashbag is a cash-like rewards platform in Korea with **more than 10 million users**. People earn points by joining events, playing mini-games, or watching ads, and spend them on purchases, partner points, or gift cards.',
               'OK캐쉬백은 국내 1,000만 명 이상이 쓰는 현금성 리워드 플랫폼입니다. 이벤트 참여, 미니게임, 광고 시청으로 포인트를 모으고, 그 포인트를 결제나 제휴 포인트, 기프트카드로 쓸 수 있습니다.',
             ),
           ],
           did: [
             l(
-              'Worked as a Java full-stack developer on the mobile web app: Spring on the backend, React on the frontend.',
+              'Worked as a **Java full-stack developer** on the mobile web app: **Spring** on the backend, **React** on the frontend.',
               '모바일 웹 앱의 Java 풀스택 개발자로 일했습니다. 백엔드는 Spring, 프론트엔드는 React였습니다.',
             ),
             l(
@@ -380,7 +380,7 @@ export const entries: Entry[] = [
           ],
           result: [
             l(
-              'Points are money to users, so the work was less about shipping fast and more about making sure every reward was paid exactly once, to the right person, on a page that loads quickly on a phone.',
+              'Points are money to users, so the work was less about shipping fast and more about making sure **every reward was paid exactly once**, to the right person, on a page that loads quickly on a phone.',
               '사용자에게 포인트는 곧 돈이라서, 빨리 만드는 것보다 모든 리워드가 정확히 한 번, 맞는 사람에게 지급되고, 그 페이지가 폰에서 빠르게 뜨게 하는 데 집중했습니다.',
             ),
           ],
@@ -395,27 +395,27 @@ export const entries: Entry[] = [
         detail: {
           context: [
             l(
-              'Ads were tied directly to revenue, since part of what advertisers paid came back to users as points. Every provider had a different SDK, callback structure and error format, so wiring each one straight into the business logic would have scattered provider-specific code across the app.',
+              'Ads were **tied directly to revenue**, since part of what advertisers paid came back to users as points. Every provider had a **different SDK, callback structure and error format**, so wiring each one straight into the business logic would have scattered provider-specific code across the app.',
               '광고는 매출과 직접 연결되어 있었습니다. 광고주가 낸 돈의 일부가 사용자에게 포인트로 돌아가는 구조였으니까요. 그런데 광고사마다 SDK, 콜백 구조, 에러 형식이 전부 달라서, 비즈니스 로직에 직접 붙이면 광고사별 코드가 앱 전체에 흩어질 상황이었습니다.',
             ),
           ],
           did: [
             l(
-              'Used the Adapter pattern: one common AdProvider interface (requestAd, onComplete, onSkip, onError) with one adapter per provider. A new provider is one adapter class and one config entry, with no change to the business logic.',
+              'Used the **Adapter pattern**: one common **AdProvider** interface (requestAd, onComplete, onSkip, onError) with one adapter per provider. A new provider is **one adapter class and one config entry**, with no change to the business logic.',
               'Adapter 패턴을 썼습니다. 공통 AdProvider 인터페이스(requestAd, onComplete, onSkip, onError)를 두고 광고사마다 어댑터를 하나씩 구현했습니다. 새 광고사는 어댑터 클래스 하나와 설정 한 줄로 붙고, 비즈니스 로직은 그대로입니다.',
             ),
             l(
-              'Treated the provider’s server-to-server postback (POST /postback/{vendor}) as the source of truth instead of the frontend. The backend checks the sender’s IP range, verifies the signature with a shared secret, and checks campaign status and user eligibility before paying anything.',
+              'Treated the provider’s server-to-server postback (POST /postback/{vendor}) as the **source of truth** instead of the frontend. The backend checks the sender’s **IP range**, verifies the **signature** with a shared secret, and checks campaign status and user eligibility before paying anything.',
               '리워드 지급의 기준은 프론트엔드가 아니라 광고사 서버가 직접 보내는 postback(POST /postback/{vendor})으로 잡았습니다. 백엔드는 보낸 쪽 IP 범위, 공유 비밀키 서명, 캠페인 상태와 사용자 자격을 확인한 뒤에만 지급합니다.',
             ),
             l(
-              'Made the payment safe to retry: the reward is written in one database transaction, and a unique constraint on (vendor, transaction_id) rejects a duplicate postback. A duplicate still gets 200 OK, because providers retry until they see success. Notifications and analytics run asynchronously so the response stays fast.',
+              'Made the payment **safe to retry**: the reward is written in **one database transaction**, and a **unique constraint on (vendor, transaction_id)** rejects a duplicate postback. A duplicate still gets **200 OK**, because providers retry until they see success. Notifications and analytics **run asynchronously** so the response stays fast.',
               '같은 요청이 다시 와도 안전하게 만들었습니다. 리워드는 하나의 DB 트랜잭션으로 기록하고, (vendor, transaction_id) 유니크 제약으로 중복 postback을 막습니다. 중복이어도 200 OK를 돌려주는데, 광고사는 성공 응답을 받을 때까지 재전송하기 때문입니다. 알림과 통계는 비동기로 넘겨서 응답은 빠르게 유지했습니다.',
             ),
           ],
           result: [
             l(
-              'Skippable video, banner and interstitial ads from several providers run through one flow, new providers plug in with a single adapter, and the same completed ad can never pay a user twice.',
+              'Skippable video, banner and interstitial ads from several providers run through **one flow**, new providers plug in with a single adapter, and the same completed ad **can never pay a user twice**.',
               '여러 광고사의 스킵 가능 영상, 배너, 전면 광고가 하나의 흐름으로 처리되고, 새 광고사는 어댑터 하나로 붙으며, 같은 광고 시청으로 포인트가 두 번 나가는 일이 없습니다.',
             ),
           ],
@@ -430,21 +430,21 @@ export const entries: Entry[] = [
         detail: {
           context: [
             l(
-              'The provider could resend the same postback if our server answered slowly or the network hiccupped. The one thing that must never happen is a user getting paid twice for the same ad, so this logic needed tests more than anything else in the app.',
+              'The provider could resend the same postback if our server answered slowly or the network hiccupped. The one thing that must never happen is a user **getting paid twice for the same ad**, so this logic needed tests more than anything else in the app.',
               '우리 서버 응답이 늦거나 네트워크가 잠깐 끊기면 광고사가 같은 postback을 다시 보낼 수 있습니다. 절대 일어나면 안 되는 건 같은 광고로 포인트가 두 번 나가는 것이었고, 그래서 앱에서 이 로직에 테스트가 가장 필요했습니다.',
             ),
           ],
           did: [
             l(
-              'Wrote unit tests with JUnit and Mockito, mocking the ad provider and database pieces so the reward logic could be tested on its own and the tests stayed fast. The core case: the same transaction ID sent twice must create exactly one reward record and pay the points once.',
+              'Wrote **unit tests with JUnit and Mockito**, mocking the ad provider and database pieces so the reward logic could be tested on its own and the tests stayed fast. The core case: the same transaction ID sent twice must create **exactly one reward record** and pay the points once.',
               'JUnit과 Mockito로 단위 테스트를 작성했습니다. 광고사와 DB 관련 부분은 목으로 대체해서 리워드 로직만 따로, 빠르게 테스트할 수 있게 했습니다. 핵심 케이스는 같은 트랜잭션 ID가 두 번 왔을 때 리워드 기록은 하나만 생기고 포인트도 한 번만 지급되는지였습니다.',
             ),
             l(
-              'Covered the business edge cases that should all be rejected: a reward after the campaign budget ran out, a user over their daily limit, a skip signal on a campaign that requires the full video, and an unknown campaign ID.',
+              'Covered the **business edge cases** that should all be rejected: a reward after the campaign budget ran out, a user over their daily limit, a skip signal on a campaign that requires the full video, and an unknown campaign ID.',
               '거부되어야 하는 비즈니스 예외 상황도 다 넣었습니다. 캠페인 예산이 다 떨어진 뒤의 지급 요청, 하루 한도를 넘긴 사용자, 영상을 끝까지 봐야 하는 캠페인에서 온 스킵 신호, 존재하지 않는 캠페인 ID 같은 것들입니다.',
             ),
             l(
-              'Added integration tests with an in-memory H2 database and the real Spring context, so the whole path from the incoming web request through the business logic to the saved reward record is exercised.',
+              'Added **integration tests** with an in-memory **H2** database and the real Spring context, so the whole path from the incoming web request through the business logic to the saved reward record is exercised.',
               '인메모리 DB인 H2와 실제 Spring 컨텍스트로 통합 테스트도 작성해서, 웹 요청이 들어와서 비즈니스 로직을 거쳐 리워드 기록이 DB에 저장되는 전체 경로를 검증했습니다.',
             ),
             l(
@@ -454,7 +454,7 @@ export const entries: Entry[] = [
           ],
           result: [
             l(
-              'Regressions in the reward logic are caught before release rather than by users, and the duplicate-payment case is locked down by both a test and a database constraint.',
+              'Regressions in the reward logic are **caught before release** rather than by users, and the duplicate-payment case is locked down by **both a test and a database constraint**.',
               '리워드 로직의 회귀 버그는 사용자가 아니라 배포 전에 잡히고, 중복 지급은 테스트와 DB 제약 두 겹으로 막혀 있습니다.',
             ),
           ],
@@ -475,21 +475,21 @@ export const entries: Entry[] = [
           ],
           did: [
             l(
-              'Measured first: used the Chrome DevTools performance profiler and Lighthouse with mobile throttling to find the actual bottlenecks, looking at when the main content appears and when the page becomes usable.',
+              'Measured first: used the **Chrome DevTools** performance profiler and **Lighthouse** with mobile throttling to find the actual bottlenecks, looking at when the main content appears and when the page becomes usable.',
               '먼저 측정했습니다. Chrome DevTools 성능 프로파일러와 Lighthouse를 모바일 속도 제한 상태로 돌려서 실제 병목이 어디인지 찾았고, 주요 콘텐츠가 뜨는 시점과 페이지가 실제로 쓸 수 있게 되는 시점을 봤습니다.',
             ),
             l(
-              'The biggest issue was that the ad SDK scripts were loaded synchronously at page load even though the ad wasn’t visible yet. Changed it to load the SDK only when the ad container gets close to the viewport, which alone cut more than a second off the initial load.',
+              'The biggest issue was that the **ad SDK scripts were loaded synchronously** at page load even though the ad wasn’t visible yet. Changed it to **load the SDK only when the ad container gets close to the viewport**, which alone **cut more than a second** off the initial load.',
               '가장 큰 문제는 광고 SDK 스크립트가 아직 광고가 보이지도 않는데 페이지 로드 시점에 동기로 로드되는 것이었습니다. 광고 영역이 화면에 가까워질 때만 SDK를 불러오도록 바꿨고, 이것만으로 초기 로딩이 1초 이상 줄었습니다.',
             ),
             l(
-              'Removed unnecessary re-renders and repeated requests. For example, the reward status was being fetched again on every re-render, so I cached the result instead of asking the server the same thing repeatedly.',
+              'Removed **unnecessary re-renders and repeated requests**. For example, the reward status was being fetched again on every re-render, so I **cached the result** instead of asking the server the same thing repeatedly.',
               '불필요한 리렌더링과 반복 요청도 정리했습니다. 예를 들어 리워드 상태를 리렌더링마다 다시 요청하고 있어서, 결과를 캐싱해서 같은 요청을 반복하지 않게 했습니다.',
             ),
           ],
           result: [
             l(
-              'Loading time dropped by about 40%, and the page feels noticeably more responsive on mobile.',
+              'Loading time **dropped by about 40%**, and the page feels noticeably more responsive on mobile.',
               '로딩 시간이 약 40% 줄었고, 특히 모바일에서 페이지가 눈에 띄게 빨라졌습니다.',
             ),
           ],
@@ -510,12 +510,12 @@ export const entries: Entry[] = [
           ],
           did: [
             l(
-              'Coordinated directly with the design team while implementing the screens, checking details on real devices together instead of approximating the mockups and fixing differences later.',
+              'Coordinated **directly with the design team** while implementing the screens, checking details **on real devices together** instead of approximating the mockups and fixing differences later.',
               '화면을 구현하면서 디자인팀과 직접 소통했습니다. 목업을 대충 비슷하게 만들고 나중에 차이를 고치는 대신, 실제 기기에서 함께 세부를 확인하며 맞췄습니다.',
             ),
           ],
           result: [
-            l('Mobile user traffic increased by 20% after the redesigned screens shipped.', '리디자인된 화면이 배포된 뒤 모바일 사용자 트래픽이 20% 증가했습니다.'),
+            l('Mobile user traffic **increased by 20%** after the redesigned screens shipped.', '리디자인된 화면이 배포된 뒤 모바일 사용자 트래픽이 20% 증가했습니다.'),
           ],
         },
       },
@@ -553,27 +553,27 @@ export const entries: Entry[] = [
         detail: {
           context: [
             l(
-              'Nexol System builds and runs the retail and logistics systems for Samsonite Korea, including the EPOS (point-of-sale) system used in 500+ stores and the warehouse management system. I developed and maintained both, on Spring Boot.',
+              'Nexol System builds and runs the retail and logistics systems for Samsonite Korea, including the **EPOS (point-of-sale) system used in 500+ stores** and the **warehouse management system**. I developed and maintained both, on Spring Boot.',
               '넥솔시스템은 쌤소나이트 코리아의 리테일·물류 시스템을 개발하고 운영하는 회사입니다. 전국 500여 개 매장에서 쓰는 EPOS(판매 시점 관리)와 창고 관리 시스템이 여기 포함되고, 저는 둘 다 Spring Boot 기반으로 개발·운영했습니다.',
             ),
           ],
           did: [
             l(
-              'On the maintenance side, the nightly closing batch was the critical piece. Every night the transactions from all 500 stores are aggregated and sent to headquarters, and when that failed, HQ had no sales report in the morning. A common cause was a store losing its network during the day, so its transactions arrived late or not at all.',
+              'On the maintenance side, the **nightly closing batch** was the critical piece. Every night the transactions from all 500 stores are aggregated and sent to headquarters, and when that failed, **HQ had no sales report in the morning**. A common cause was a **store losing its network** during the day, so its transactions arrived late or not at all.',
               '운영 쪽에서 가장 중요한 건 야간 마감 배치였습니다. 매일 밤 500개 매장의 거래를 모아서 본사로 보내는데, 이게 실패하면 본사는 아침에 매출 리포트를 볼 수 없습니다. 흔한 원인은 매장이 낮에 네트워크가 끊겨서 거래가 늦게 오거나 아예 안 오는 경우였습니다.',
             ),
             l(
-              'Improved the retry and re-processing logic so late transactions are picked up automatically in the next run, instead of someone manually re-running the batch at 7 a.m.',
+              'Improved the **retry and re-processing logic** so late transactions are **picked up automatically in the next run**, instead of someone manually re-running the batch at 7 a.m.',
               '재시도와 재처리 로직을 고쳐서, 늦게 도착한 거래를 다음 실행에서 자동으로 반영하도록 했습니다. 누군가 아침 7시에 배치를 손으로 다시 돌리는 일이 없어졌습니다.',
             ),
             l(
-              'On the development side, built the sales dashboard screens for headquarters. Those dashboard queries turned out to be the slow ones I later fixed in the performance work below.',
+              'On the development side, built the **sales dashboard screens for headquarters**. Those dashboard queries turned out to be the slow ones I later fixed in the performance work below.',
               '개발 쪽에서는 본사용 매출 대시보드 화면을 만들었습니다. 이 대시보드의 쿼리가 나중에 느려져서, 아래의 성능 개선 작업으로 이어졌습니다.',
             ),
           ],
           result: [
             l(
-              'Headquarters got its morning sales report reliably, and the dashboard became the main way they looked at store performance.',
+              'Headquarters got its **morning sales report reliably**, and the dashboard became the main way they looked at store performance.',
               '본사가 아침 매출 리포트를 안정적으로 받게 되었고, 대시보드는 본사가 매장 실적을 보는 기본 창구가 되었습니다.',
             ),
           ],
@@ -588,23 +588,23 @@ export const entries: Entry[] = [
         detail: {
           context: [
             l(
-              'Visited the Samsonite logistics warehouses to see how the inbound and outbound scanning actually worked, rather than going by what the tickets said.',
+              '**Visited the Samsonite logistics warehouses** to see how the inbound and outbound scanning actually worked, rather than going by what the tickets said.',
               '티켓에 적힌 내용만 보지 않고, 쌤소나이트 물류창고에 직접 가서 입출고 스캔 작업이 실제로 어떻게 돌아가는지 봤습니다.',
             ),
           ],
           did: [
             l(
-              'Found that for every item, a worker scanned the barcode, then searched for the product manually, found the matching row, and updated the quantity and status by hand. Several steps for something that should be one.',
+              'Found that for every item, a worker scanned the barcode, then **searched for the product manually**, found the matching row, and **updated the quantity and status by hand**. Several steps for something that should be one.',
               '작업자가 상품마다 바코드를 찍은 뒤, 상품을 직접 검색해서 해당 행을 찾고, 수량과 상태를 손으로 바꾸고 있었습니다. 한 번에 끝나야 할 일이 여러 단계로 쪼개져 있었습니다.',
             ),
             l(
-              'Built a Node.js-based single-scan flow: once the barcode is scanned, the system identifies the product and updates the inventory record itself, so the worker only confirms when something doesn’t match.',
+              'Built a **Node.js-based single-scan flow**: once the barcode is scanned, the system **identifies the product and updates the inventory record itself**, so the worker only confirms when something doesn’t match.',
               'Node.js 기반의 싱글 스캔 흐름을 만들었습니다. 바코드를 찍으면 시스템이 상품을 알아서 찾아 재고 기록을 바로 갱신하고, 작업자는 뭔가 안 맞을 때만 확인하면 됩니다.',
             ),
           ],
           result: [
             l(
-              'The number of manual steps per inbound and outbound operation dropped, and the change came from watching the work rather than from a feature request.',
+              'The number of **manual steps per inbound and outbound operation dropped**, and the change came from watching the work rather than from a feature request.',
               '입출고 작업마다 필요한 수작업 단계가 줄었습니다. 그리고 이 개선은 기능 요청이 아니라 현장에서 일하는 모습을 직접 본 데서 나왔습니다.',
             ),
           ],
@@ -619,23 +619,23 @@ export const entries: Entry[] = [
         detail: {
           context: [
             l(
-              'The logistics system was a .NET application installed on each PDA device. Every update had to be distributed to every device, so shipping a fix was slow and production issues took a long time to resolve.',
+              'The logistics system was a **.NET application installed on each PDA device**. **Every update had to be distributed to every device**, so shipping a fix was slow and production issues took a long time to resolve.',
               '물류 시스템은 PDA 기기마다 설치되는 .NET 애플리케이션이었습니다. 업데이트할 때마다 모든 기기에 배포해야 해서 수정 하나 내보내는 데 시간이 오래 걸렸고, 운영 이슈 대응도 느렸습니다.',
             ),
           ],
           did: [
             l(
-              'Helped migrate it to a Node.js web application, split into services by area, that runs in the PDA browser. Updates are now deployed once on the server and every device gets the latest version the next time it opens the app.',
+              'Helped migrate it to a **Node.js web application**, split into services by area, that runs in the PDA browser. Updates are now **deployed once on the server** and every device gets the latest version the next time it opens the app.',
               'PDA 브라우저에서 동작하는 Node.js 웹 애플리케이션으로 옮기는 작업을 맡았고, 기능 영역별로 서비스를 나눴습니다. 이제 서버에 한 번 배포하면 모든 기기가 다음에 앱을 열 때 최신 버전을 쓰게 됩니다.',
             ),
             l(
-              'Owned deployment and operations of the new system afterward.',
+              '**Owned deployment and operations** of the new system afterward.',
               '전환 이후 새 시스템의 배포와 운영을 직접 맡았습니다.',
             ),
           ],
           result: [
             l(
-              'Rolling out bug fixes and responding to production issues became much faster, and application downtime decreased by 30%.',
+              'Rolling out bug fixes and responding to production issues became much faster, and **application downtime decreased by 30%**.',
               '버그 수정 배포와 운영 이슈 대응이 훨씬 빨라졌고, 애플리케이션 다운타임이 30% 줄었습니다.',
             ),
           ],
@@ -650,26 +650,26 @@ export const entries: Entry[] = [
         detail: {
           context: [
             l(
-              'The headquarters sales dashboard aggregated data across 500+ stores, and when many people opened it at once the queries slowed down noticeably.',
+              'The headquarters sales dashboard aggregated data across 500+ stores, and when **many people opened it at once** the queries **slowed down noticeably**.',
               '본사 매출 대시보드는 500여 개 매장의 데이터를 집계하는데, 여러 사람이 동시에 열면 쿼리가 눈에 띄게 느려졌습니다.',
             ),
           ],
           did: [
             l(
-              'Added covering indexes for the queries the dashboard ran most, so they could be answered from the index without touching the full table.',
+              'Added **covering indexes** for the queries the dashboard ran most, so they could be answered from the index without touching the full table.',
               '대시보드가 가장 자주 실행하는 쿼리에 커버링 인덱스를 추가해서, 테이블 전체를 읽지 않고 인덱스만으로 답할 수 있게 했습니다.',
             ),
             l(
-              'Built pre-aggregated summary tables, filled ahead of time, so the dashboard reads totals that are already computed instead of summing raw transactions on every request.',
+              'Built **pre-aggregated summary tables**, filled ahead of time, so the dashboard reads totals that are already computed instead of summing raw transactions on every request.',
               '미리 집계해 둔 요약 테이블을 만들어서, 요청마다 원본 거래를 다 더하는 대신 이미 계산된 합계를 읽도록 했습니다.',
             ),
             l(
-              'Cached results that rarely change so repeated requests didn’t hit the database again.',
+              '**Cached results** that rarely change so repeated requests didn’t hit the database again.',
               '자주 바뀌지 않는 결과는 캐싱해서 반복 요청이 DB까지 가지 않게 했습니다.',
             ),
           ],
           result: [
-            l('Response times decreased by 20% and stayed stable when traffic peaked.', '응답 시간이 20% 줄었고, 트래픽이 몰릴 때도 안정적으로 유지되었습니다.'),
+            l('Response times **decreased by 20%** and stayed stable when traffic peaked.', '응답 시간이 20% 줄었고, 트래픽이 몰릴 때도 안정적으로 유지되었습니다.'),
           ],
         },
       },
@@ -682,13 +682,13 @@ export const entries: Entry[] = [
         detail: {
           context: [
             l(
-              'Before big promotions like Black Friday or Christmas, discount and sales logic changed often, and a small change in an API or a data format could quietly break something that used to work.',
+              'Before **big promotions like Black Friday or Christmas**, discount and sales logic **changed often**, and a small change in an API or a data format could quietly break something that used to work.',
               '블랙프라이데이나 크리스마스 같은 큰 프로모션 전에는 할인과 판매 로직이 자주 바뀌었고, API나 데이터 형식이 조금만 달라져도 잘 되던 기능이 조용히 깨질 수 있었습니다.',
             ),
           ],
           did: [
             l(
-              'Built and ran a set of 10+ regression tests in Postman against the Spring Boot services, checking the JSON request and response of each API so that a renamed or missing field would be caught before release.',
+              'Built and ran a set of **10+ regression tests in Postman** against the Spring Boot services, checking the JSON request and response of each API so that a **renamed or missing field would be caught before release**.',
               'Spring Boot 서비스를 대상으로 Postman 회귀 테스트 10개 이상을 만들어 실행했습니다. 각 API의 JSON 요청과 응답을 검증해서, 필드 이름이 바뀌거나 빠진 경우를 배포 전에 잡아냈습니다.',
             ),
             l(
@@ -698,7 +698,7 @@ export const entries: Entry[] = [
           ],
           result: [
             l(
-              'Prevented field-level data mismatches from reaching production and kept 300K+ transactions a year processing correctly.',
+              'Prevented **field-level data mismatches** from reaching production and kept **300K+ transactions a year** processing correctly.',
               '필드 단위 데이터 불일치가 프로덕션까지 가는 것을 막고, 연 30만 건 이상의 거래가 정확하게 처리되도록 했습니다.',
             ),
           ],
